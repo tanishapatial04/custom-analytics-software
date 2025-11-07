@@ -25,6 +25,40 @@ export default function AnalyticsDashboard({ projectId }) {
     }
   };
 
+  const handleExportCSV = async () => {
+    try {
+      toast.info('Generating CSV report...');
+      const response = await axios.get(`/analytics/${projectId}/export?days=${dateRange}`, {
+        responseType: 'blob'
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Extract filename from Content-Disposition header or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `analytics_report_${new Date().toISOString().split('T')[0]}.csv`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('CSV report downloaded successfully!');
+    } catch (error) {
+      toast.error('Failed to export CSV report');
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-center py-20">
