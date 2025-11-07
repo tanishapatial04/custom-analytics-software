@@ -289,6 +289,160 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
         "daily_traffic": [{"date": date, "count": count} for date, count in sorted(daily_traffic.items())]
     }
 
+@api_router.get("/analytics/{project_id}/export")
+async def export_analytics_csv(project_id: str, days: int = 7, user: dict = Depends(verify_token)):
+    # Verify project ownership
+    project = await db.projects.find_one({"id": project_id, "tenant_id": user['tenant_id']}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    start_date = datetime.now(timezone.utc) - timedelta(days=days)
+    end_date = datetime.now(timezone.utc)
+    start_date_iso = start_date.isoformat()
+    
+    # Get events in date range
+    events = await db.events.find({
+        "project_id": project_id,
+        "timestamp": {"$gte": start_date_iso}
+    }, {"_id": 0}).to_list(10000)
+    
+    # Prepare CSV data
+    output = io.StringIO()
+    
+    # Summary Report Section
+    output.write(f"DataForge Analytics Report\n")
+    output.write(f"Project: {project['name']}\n")
+    output.write(f"Domain: {project['domain']}\n")
+    output.write(f"Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}\n")
+    output.write(f"Generated: {end_date.strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
+    output.write("\n")
+    
+    # Overview Metrics Section
+    total_pageviews = sum(1 for e in events if e['event_type'] == 'pageview')
+    unique_sessions = len(set(e['session_id'] for e in events))
+    total_events = len(events)
+    avg_events_per_session = total_events / unique_sessions if unique_sessions > 0 else 0
+    
+    output.write("Overview Metrics\n")
+    output.write("Metric,Value\n")
+    output.write(f"Total Pageviews,{total_pageviews}\n")
+    output.write(f"Unique Sessions,{unique_sessions}\n")
+    output.write(f"Total Events,{total_events}\n")
+    output.write(f"Average Events per Session,{avg_events_per_session:.2f}\n")
+    output.write("\n\n")
+    
+    # Top Pages Section
+    page_counts = {}
+    page_sessions = {}
+    for e in events:
+        if e['event_type'] == 'pageview' and e.get('page_url'):
+            url = e['page_url']
+            page_counts[url] = page_counts.get(url, 0) + 1
+            if url not in page_sessions:
+                page_sessions[url] = set()
+            page_sessions[url].add(e['session_id'])
+    
+    output.write("Top Pages\n")
+    output.write("Page URL,Pageviews,Unique Sessions,% of Total Pageviews\n")
+    top_pages = sorted(page_counts.items(), key=lambda x: x[1], reverse=True)[:20]
+    for url, views in top_pages:
+        unique_sess = len(page_sessions[url])
+        percentage = (views / total_pageviews * 100) if total_pageviews > 0 else 0
+        output.write(f'"{url}",{views},{unique_sess},{percentage:.2f}%\n')
+    output.write("\n\n")
+    
+    # Traffic Sources (Referrers) Section
+    referrer_counts = {}
+    for e in events:
+        if e['event_type'] == 'pageview':
+            referrer = e.get('referrer', 'Direct / None')
+            if not referrer or referrer == '':
+                referrer = 'Direct / None'
+            referrer_counts[referrer] = referrer_counts.get(referrer, 0) + 1
+    
+    output.write("Traffic Sources\n")
+    output.write("Source / Referrer,Sessions,% of Total\n")
+    top_referrers = sorted(referrer_counts.items(), key=lambda x: x[1], reverse=True)[:20]
+    for referrer, count in top_referrers:
+        percentage = (count / total_pageviews * 100) if total_pageviews > 0 else 0
+        output.write(f'"{referrer}",{count},{percentage:.2f}%\n')
+    output.write("\n\n")
+    
+    # Daily Traffic Breakdown
+    daily_data = {}
+    for e in events:
+        date_str = e['timestamp'][:10]
+        if date_str not in daily_data:
+            daily_data[date_str] = {
+                'pageviews': 0,
+                'events': 0,
+                'sessions': set()
+            }
+        
+        if e['event_type'] == 'pageview':
+            daily_data[date_str]['pageviews'] += 1
+        daily_data[date_str]['events'] += 1
+        daily_data[date_str]['sessions'].add(e['session_id'])
+    
+    output.write("Daily Traffic Breakdown\n")
+    output.write("Date,Pageviews,Total Events,Unique Sessions,Events per Session\n")
+    for date in sorted(daily_data.keys()):
+        data = daily_data[date]
+        sessions_count = len(data['sessions'])
+        events_per_session = data['events'] / sessions_count if sessions_count > 0 else 0
+        output.write(f"{date},{data['pageviews']},{data['events']},{sessions_count},{events_per_session:.2f}\n")
+    output.write("\n\n")
+    
+    # User Technology Section
+    browsers = {}
+    for e in events:
+        if e.get('user_agent'):
+            ua = e['user_agent']
+            # Simple browser detection
+            if 'Chrome' in ua and 'Edg' not in ua:
+                browser = 'Chrome'
+            elif 'Safari' in ua and 'Chrome' not in ua:
+                browser = 'Safari'
+            elif 'Firefox' in ua:
+                browser = 'Firefox'
+            elif 'Edg' in ua:
+                browser = 'Edge'
+            else:
+                browser = 'Other'
+            browsers[browser] = browsers.get(browser, 0) + 1
+    
+    output.write("Browser Usage\n")
+    output.write("Browser,Sessions,% of Total\n")
+    total_with_ua = sum(browsers.values())
+    for browser, count in sorted(browsers.items(), key=lambda x: x[1], reverse=True):
+        percentage = (count / total_with_ua * 100) if total_with_ua > 0 else 0
+        output.write(f"{browser},{count},{percentage:.2f}%\n")
+    output.write("\n\n")
+    
+    # All Events Detail (Raw Data)
+    output.write("All Events (Raw Data)\n")
+    output.write("Timestamp,Event Type,Event Name,Page URL,Page Title,Referrer,Session ID\n")
+    for e in sorted(events, key=lambda x: x['timestamp'], reverse=True)[:500]:  # Limit to 500 most recent
+        timestamp = e.get('timestamp', '')
+        event_type = e.get('event_type', '')
+        event_name = e.get('event_name', '')
+        page_url = e.get('page_url', '')
+        page_title = e.get('page_title', '')
+        referrer = e.get('referrer', '')
+        session_id = e.get('session_id', '')
+        
+        output.write(f'"{timestamp}","{event_type}","{event_name}","{page_url}","{page_title}","{referrer}","{session_id}"\n')
+    
+    # Prepare response
+    output.seek(0)
+    filename = f"analytics_{project['name'].replace(' ', '_')}_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}.csv"
+    
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # ==================== NLQ ROUTES ====================
 
 @api_router.post("/nlq", response_model=NLQResponse)
