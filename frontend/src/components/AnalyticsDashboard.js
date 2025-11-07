@@ -70,8 +70,16 @@ export default function AnalyticsDashboard({ projectId }) {
 
   return (
     <div className="space-y-8" data-testid="analytics-dashboard">
-      {/* Date Range Selector */}
-      <div className="flex justify-end">
+      {/* Date Range Selector and Export Button */}
+      <div className="flex justify-between items-center">
+        <Button
+          data-testid="export-csv-button"
+          onClick={handleExportCSV}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Export CSV Report
+        </Button>
         <select
           data-testid="date-range-selector"
           value={dateRange}
