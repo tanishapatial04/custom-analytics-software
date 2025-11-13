@@ -12,7 +12,6 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import hashlib
 import jwt
-from emergentintegrations.llm.chat import LlmChat, UserMessage
 import json
 import csv
 import io
@@ -497,7 +496,7 @@ Data available:
 Provide concise, data-driven answers. Include specific numbers and trends."""
     
     chat = LlmChat(
-        api_key=os.environ.get('EMERGENT_LLM_KEY'),
+        api_key=os.environ.get(''),
         session_id=f"nlq-{request.project_id}",
         system_message=system_message
     ).with_model("openai", "gpt-5")
