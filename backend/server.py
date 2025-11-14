@@ -443,79 +443,11 @@ async def export_analytics_csv(project_id: str, days: int = 7, user: dict = Depe
     )
 
 # ==================== NLQ ROUTES ====================
-
-@api_router.post("/nlq", response_model=NLQResponse)
-async def process_nlq(request: NLQRequest, user: dict = Depends(verify_token)):
-    # Verify project ownership
-    project = await db.projects.find_one({"id": request.project_id, "tenant_id": user['tenant_id']}, {"_id": 0})
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    # Get date range
-    days_map = {"7d": 7, "30d": 30, "90d": 90, "all": 365}
-    days = days_map.get(request.date_range, 7)
-    start_date = datetime.now(timezone.utc) - timedelta(days=days)
-    start_date_iso = start_date.isoformat()
-    
-    # Fetch analytics data
-    events = await db.events.find({
-        "project_id": request.project_id,
-        "timestamp": {"$gte": start_date_iso}
-    }, {"_id": 0}).to_list(10000)
-    
-    # Prepare data summary for LLM
-    total_pageviews = sum(1 for e in events if e['event_type'] == 'pageview')
-    unique_sessions = len(set(e['session_id'] for e in events))
-    
-    page_counts = {}
-    for e in events:
-        if e['event_type'] == 'pageview' and e.get('page_url'):
-            page_counts[e['page_url']] = page_counts.get(e['page_url'], 0) + 1
-    top_pages = sorted(page_counts.items(), key=lambda x: x[1], reverse=True)[:10]
-    
-    # Daily traffic
-    daily_traffic = {}
-    for e in events:
-        date_str = e['timestamp'][:10]
-        daily_traffic[date_str] = daily_traffic.get(date_str, 0) + 1
-    
-    data_summary = {
-        "period": f"last {days} days",
-        "total_pageviews": total_pageviews,
-        "unique_sessions": unique_sessions,
-        "top_pages": top_pages,
-        "daily_traffic": daily_traffic
-    }
-    
-    # Use GPT-5 to generate insights
-    system_message = f"""You are an analytics assistant. Analyze website analytics data and answer user questions with clear, actionable insights.
-    
-Data available:
-{json.dumps(data_summary, indent=2)}
-
-Provide concise, data-driven answers. Include specific numbers and trends."""
-    
-    chat = LlmChat(
-        api_key=os.environ.get(''),
-        session_id=f"nlq-{request.project_id}",
-        system_message=system_message
-    ).with_model("openai", "gpt-5")
-    
-    user_message = UserMessage(text=request.question)
-    response_text = await chat.send_message(user_message)
-    
-    # Extract insights
-    insights = []
-    if total_pageviews > 0:
-        avg_per_session = total_pageviews / unique_sessions if unique_sessions > 0 else 0
-        insights.append(f"Average {avg_per_session:.1f} pageviews per session")
-    
-    return NLQResponse(
-        question=request.question,
-        answer=response_text,
-        data=data_summary,
-        insights=insights
-    )
+# TODO: Implement NLQ endpoint when LLM integration is ready
+# @api_router.post("/nlq", response_model=NLQResponse)
+# async def process_nlq(request: NLQRequest, user: dict = Depends(verify_token)):
+#     # Placeholder for NLQ implementation
+#     pass
 
 # ==================== HEALTH CHECK ====================
 
@@ -543,3 +475,7 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
