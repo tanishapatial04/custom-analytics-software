@@ -70,21 +70,37 @@ export default function AnalyticsDashboard({ projectId }) {
     );
   }
 
-  // Calculate percentage changes (simplified - would compare with previous period in production)
-  const pageviewsChange = 12;
-  const sessionsChange = 8;
-  const eventsChange = 15;
-  
   // Filter pages based on search
   const filteredPages = analytics?.top_pages?.filter(page => 
     page.url.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
-  // Calculate pie chart percentages
-  const totalMetric = analytics?.total_events || 0;
-  const sessionsPercent = analytics?.unique_sessions ? Math.round((analytics.unique_sessions / totalMetric) * 100) : 0;
-  const pageviewsPercent = analytics?.total_pageviews ? Math.round((analytics.total_pageviews / totalMetric) * 100) : 0;
-  const otherPercent = Math.max(0, 100 - sessionsPercent - pageviewsPercent);
+  // Calculate metrics from dynamic data
+  const totalEvents = analytics?.total_events || 0;
+  const totalPageviews = analytics?.total_pageviews || 0;
+  const uniqueSessions = analytics?.unique_sessions || 0;
+  const avgEventsPerSession = analytics?.avg_events_per_session || 0;
+  
+  // Dynamic percentage changes from backend
+  const pageviewsChange = analytics?.pageviews_change || 0;
+  const sessionsChange = analytics?.sessions_change || 0;
+  const eventsChange = analytics?.events_change || 0;
+  
+  // Browser distribution data
+  const browsers = analytics?.browsers || {};
+  const browserEntries = Object.entries(browsers);
+  const topBrowser = browserEntries[0];
+  const topBrowserPercent = topBrowser ? Math.round((topBrowser[1] / totalEvents) * 100) : 0;
+  
+  // Referrer data
+  const referrers = analytics?.referrers || [];
+  const topReferrer = referrers[0];
+  const directTraffic = referrers.filter(r => r.source === 'Direct' || r.source === '')[0];
+  
+  // Calculate pie chart percentages for distribution
+  const pageviewsPercent = totalEvents > 0 ? Math.round((totalPageviews / totalEvents) * 100) : 0;
+  const sessionsPercent = totalEvents > 0 ? Math.round((uniqueSessions / totalEvents) * 100) : 0;
+  const otherPercent = Math.max(0, 100 - pageviewsPercent - sessionsPercent);
 
   return (
     <div className="space-y-6 p-6 bg-slate-50 min-h-screen" data-testid="analytics-dashboard">
@@ -122,17 +138,17 @@ export default function AnalyticsDashboard({ projectId }) {
         <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100" data-testid="metric-pageviews">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-slate-600 text-sm font-medium">Lorem ipsum</p>
+              <p className="text-slate-600 text-sm font-medium">Total Pageviews</p>
               <div className="flex items-end gap-2 mt-1">
                 <div className="text-4xl font-bold text-slate-900">
-                  {analytics?.total_pageviews || 0}
+                  {totalPageviews.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-green-600 text-sm mb-1">
+                <div className={`flex items-center gap-1 text-sm mb-1 ${pageviewsChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   <ArrowUp className="w-4 h-4" />
-                  <span>{pageviewsChange}%</span>
+                  <span>{pageviewsChange > 0 ? '+' : ''}{pageviewsChange}%</span>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Duis at amet, consectetur adipiscing elit</p>
+              <p className="text-xs text-slate-500 mt-2">Total number of page views across all sessions</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
               <Eye className="w-6 h-6 text-blue-600" />
@@ -144,17 +160,17 @@ export default function AnalyticsDashboard({ projectId }) {
         <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-slate-600 text-sm font-medium">Lorem ipsum</p>
+              <p className="text-slate-600 text-sm font-medium">Unique Sessions</p>
               <div className="flex items-end gap-2 mt-1">
                 <div className="text-4xl font-bold text-slate-900">
-                  {analytics?.unique_sessions || 0}
+                  {uniqueSessions.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-green-600 text-sm mb-1">
+                <div className={`flex items-center gap-1 text-sm mb-1 ${sessionsChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   <ArrowUp className="w-4 h-4" />
-                  <span>{sessionsChange}%</span>
+                  <span>{sessionsChange > 0 ? '+' : ''}{sessionsChange}%</span>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Vel illum dolore eu feugiat nulla</p>
+              <p className="text-xs text-slate-500 mt-2">Individual user sessions tracked on your site</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
               <Users className="w-6 h-6 text-orange-600" />
@@ -166,17 +182,17 @@ export default function AnalyticsDashboard({ projectId }) {
         <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-slate-600 text-sm font-medium">Lorem ipsum</p>
+              <p className="text-slate-600 text-sm font-medium">Total Events</p>
               <div className="flex items-end gap-2 mt-1">
                 <div className="text-4xl font-bold text-slate-900">
-                  {analytics?.total_events || 0}
+                  {totalEvents.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-green-600 text-sm mb-1">
+                <div className={`flex items-center gap-1 text-sm mb-1 ${eventsChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   <ArrowUp className="w-4 h-4" />
-                  <span>{eventsChange}%</span>
+                  <span>{eventsChange > 0 ? '+' : ''}{eventsChange}%</span>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Facilisis at vero eros et accumsan et</p>
+              <p className="text-xs text-slate-500 mt-2">Average {avgEventsPerSession} events per session</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
               <Activity className="w-6 h-6 text-purple-600" />
@@ -189,7 +205,8 @@ export default function AnalyticsDashboard({ projectId }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Daily Traffic Chart */}
         <Card className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Dolor sit amet</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Traffic Over Time</h3>
+          <p className="text-sm text-slate-600 mb-6">Daily traffic breakdown - Shows total events per day over selected period</p>
           {analytics?.daily_traffic && analytics.daily_traffic.length > 0 ? (
             <div className="space-y-4">
               {/* Simplified line chart representation */}
@@ -201,18 +218,18 @@ export default function AnalyticsDashboard({ projectId }) {
                     <div 
                       key={index} 
                       className="flex-1 flex flex-col items-center group"
+                      title={`${day.date}: ${day.count} events`}
                     >
                       <div className="w-full bg-gradient-to-t from-blue-400 to-blue-300 rounded-t opacity-70 hover:opacity-100 transition-all" 
                         style={{ height: `${Math.max(height, 5)}%`, minHeight: '5%' }}>
                       </div>
-                      <p className="text-xs text-slate-500 mt-2">{day.date.slice(-2)}</p>
+                      <p className="text-xs text-slate-500 mt-2 font-medium">{day.date.slice(-2)}</p>
                     </div>
                   );
                 })}
               </div>
-              <div className="flex gap-6 text-xs text-slate-600 mt-4">
-                <div><span className="inline-block w-3 h-3 bg-blue-400 rounded mr-2"></span>Lorem</div>
-                <div><span className="inline-block w-3 h-3 bg-orange-400 rounded mr-2"></span>Ipsum</div>
+              <div className="flex gap-6 text-xs text-slate-600 mt-4 px-4 py-2 bg-slate-50 rounded-lg">
+                <div><span className="inline-block w-3 h-3 bg-blue-400 rounded mr-2"></span>Events per Day</div>
               </div>
             </div>
           ) : (
@@ -220,9 +237,10 @@ export default function AnalyticsDashboard({ projectId }) {
           )}
         </Card>
 
-        {/* Right Column - Distribution Pie */}
+        {/* Right Column - Event Distribution */}
         <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Consectetur</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Traffic Composition</h3>
+          <p className="text-sm text-slate-600 mb-6">Percentage breakdown of traffic types</p>
           <div className="flex flex-col items-center">
             {/* Pie Chart Representation */}
             <div className="relative w-32 h-32 mb-6">
@@ -260,27 +278,34 @@ export default function AnalyticsDashboard({ projectId }) {
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-600">75%</p>
+                  <p className="text-2xl font-bold text-purple-600">{pageviewsPercent}%</p>
+                  <p className="text-xs text-slate-500">Pages</p>
                 </div>
               </div>
             </div>
             <div className="space-y-2 w-full text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-600">Lorem</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 bg-purple-600 rounded-full"></span>
+                  <span className="text-slate-600">Pageviews</span>
+                </div>
                 <span className="font-medium text-slate-900">{pageviewsPercent}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Ipsum</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 bg-orange-600 rounded-full"></span>
+                  <span className="text-slate-600">Sessions</span>
+                </div>
                 <span className="font-medium text-slate-900">{sessionsPercent}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Dolor</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 bg-blue-600 rounded-full"></span>
+                  <span className="text-slate-600">Other Events</span>
+                </div>
                 <span className="font-medium text-slate-900">{otherPercent}%</span>
               </div>
             </div>
-            <Button className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white">
-              Subscript
-            </Button>
           </div>
         </Card>
       </div>
@@ -290,12 +315,13 @@ export default function AnalyticsDashboard({ projectId }) {
         {/* Top Pages */}
         <Card className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-slate-100">
           <div className="mb-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Dolor sit amet</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Most Visited Pages</h3>
+            <p className="text-sm text-slate-600 mb-4">Top 5 pages with highest traffic</p>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search pages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
@@ -326,105 +352,58 @@ export default function AnalyticsDashboard({ projectId }) {
           )}
         </Card>
 
-        {/* Commodity Stats */}
+        {/* Browser Distribution */}
         <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Commodity</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Browser Distribution</h3>
+          <p className="text-sm text-slate-600 mb-6">Top browsers used by visitors</p>
           <div className="space-y-4">
-            {/* Mini Chart */}
-            <div className="bg-gradient-to-t from-blue-100 to-blue-50 rounded-lg p-4 h-32 flex flex-col justify-end">
-              <div className="flex items-end gap-1 h-24">
-                {[40, 30, 60, 45, 70, 50].map((height, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 bg-gradient-to-t from-blue-400 to-blue-300 rounded-t"
-                    style={{ height: `${height}%` }}
-                  />
-                ))}
+            {browserEntries.length > 0 ? (
+              browserEntries.map(([browser, count], index) => {
+                const percent = Math.round((count / totalEvents) * 100);
+                return (
+                  <div key={index} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-600 font-medium">{browser}</span>
+                      <span className="font-semibold text-slate-900">{percent}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-purple-500 to-purple-600 h-full rounded-full transition-all"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-slate-500 text-center py-4">No browser data available</p>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Traffic Sources */}
+      <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
+        <h3 className="text-lg font-bold text-slate-900 mb-2">Traffic Sources</h3>
+        <p className="text-sm text-slate-600 mb-6">Where your visitors are coming from</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {referrers.length > 0 ? (
+            referrers.map((ref, index) => (
+              <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="text-xs text-slate-600 font-medium mb-1">
+                  {ref.source === 'Direct' || ref.source === '' ? '📍 Direct Traffic' : `🔗 ${ref.source}`}
+                </div>
+                <div className="text-2xl font-bold text-slate-900">{ref.count}</div>
+                <div className="text-xs text-slate-500 mt-1">
+                  {Math.round((ref.count / totalPageviews) * 100)}% of traffic
+                </div>
               </div>
-            </div>
-            <p className="text-xs text-slate-500">Sed diam nonummy nibh</p>
-          </div>
-        </Card>
-      </div>
-
-      {/* Additional Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Delerit augue */}
-        <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">Delerit augue</h3>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-2">
-              <span className="inline-block w-3 h-3 bg-purple-500 rounded"></span>
-              <span className="text-sm text-slate-600">Lorem</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="inline-block w-3 h-3 bg-blue-500 rounded"></span>
-              <span className="text-sm text-slate-600">Ipsum</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="inline-block w-3 h-3 bg-orange-500 rounded"></span>
-              <span className="text-sm text-slate-600">Dolor</span>
-            </div>
-          </div>
-          <div className="w-full bg-slate-100 rounded-full h-2 flex gap-1 overflow-hidden">
-            <div className="bg-purple-500 rounded-full" style={{ width: '35%' }}></div>
-            <div className="bg-blue-500 rounded-full" style={{ width: '45%' }}></div>
-            <div className="bg-orange-500 rounded-full" style={{ width: '20%' }}></div>
-          </div>
-        </Card>
-
-        {/* Consectetur */}
-        <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">Consectetur</h3>
-          <div className="relative w-full h-24 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="w-32 h-32">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" strokeWidth="8" />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="8"
-                strokeDasharray="62.8 251.2"
-                strokeDashoffset="0"
-                transform="rotate(-90 50 50)"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="#f97316"
-                strokeWidth="8"
-                strokeDasharray="125.6 251.2"
-                strokeDashoffset="-62.8"
-                transform="rotate(-90 50 50)"
-              />
-              <text x="50" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#1e293b">
-                30%
-              </text>
-              <text x="50" y="75" textAnchor="middle" fontSize="10" fill="#64748b">
-                70%
-              </text>
-            </svg>
-          </div>
-        </Card>
-
-        {/* Commodities Chart */}
-        <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">Commodities</h3>
-          <div className="flex items-end gap-2 h-32">
-            {[70, 45, 60, 35, 50, 65].map((height, i) => (
-              <div
-                key={i}
-                className="flex-1 bg-gradient-to-t from-orange-400 to-orange-300 rounded-t"
-                style={{ height: `${height}%` }}
-              />
-            ))}
-          </div>
-        </Card>
-      </div>
+            ))
+          ) : (
+            <p className="text-slate-500 col-span-full text-center py-4">No referrer data available</p>
+          )}
+        </div>
+      </Card>
     </div>
   );
 }

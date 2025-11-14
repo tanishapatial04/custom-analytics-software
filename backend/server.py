@@ -254,18 +254,44 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
         raise HTTPException(status_code=404, detail="Project not found")
     
     start_date = datetime.now(timezone.utc) - timedelta(days=days)
+    prev_start_date = start_date - timedelta(days=days)
     start_date_iso = start_date.isoformat()
+    prev_start_date_iso = prev_start_date.isoformat()
     
-    # Get events in date range
+    # Get current period events
     events = await db.events.find({
         "project_id": project_id,
         "timestamp": {"$gte": start_date_iso}
     }, {"_id": 0}).to_list(10000)
     
-    # Calculate metrics
+    # Get previous period events for comparison
+    prev_events = await db.events.find({
+        "project_id": project_id,
+        "timestamp": {"$gte": prev_start_date_iso, "$lt": start_date_iso}
+    }, {"_id": 0}).to_list(10000)
+    
+    # Calculate current metrics
     total_pageviews = sum(1 for e in events if e['event_type'] == 'pageview')
     unique_sessions = len(set(e['session_id'] for e in events))
     total_events = len(events)
+    
+    # Calculate previous metrics
+    prev_total_pageviews = sum(1 for e in prev_events if e['event_type'] == 'pageview')
+    prev_unique_sessions = len(set(e['session_id'] for e in prev_events))
+    prev_total_events = len(prev_events)
+    
+    # Calculate percentage changes
+    pageviews_change = 0
+    if prev_total_pageviews > 0:
+        pageviews_change = round(((total_pageviews - prev_total_pageviews) / prev_total_pageviews) * 100, 1)
+    
+    sessions_change = 0
+    if prev_unique_sessions > 0:
+        sessions_change = round(((unique_sessions - prev_unique_sessions) / prev_unique_sessions) * 100, 1)
+    
+    events_change = 0
+    if prev_total_events > 0:
+        events_change = round(((total_events - prev_total_events) / prev_total_events) * 100, 1)
     
     # Top pages
     page_counts = {}
@@ -280,12 +306,49 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
         date_str = e['timestamp'][:10]  # YYYY-MM-DD
         daily_traffic[date_str] = daily_traffic.get(date_str, 0) + 1
     
+    # Calculate browser distribution
+    browsers = {}
+    for e in events:
+        if e.get('user_agent'):
+            ua = e['user_agent']
+            if 'Chrome' in ua and 'Edg' not in ua:
+                browser = 'Chrome'
+            elif 'Safari' in ua and 'Chrome' not in ua:
+                browser = 'Safari'
+            elif 'Firefox' in ua:
+                browser = 'Firefox'
+            elif 'Edg' in ua:
+                browser = 'Edge'
+            else:
+                browser = 'Other'
+            browsers[browser] = browsers.get(browser, 0) + 1
+    
+    # Traffic sources (referrers)
+    referrers = {}
+    for e in events:
+        if e['event_type'] == 'pageview':
+            referrer = e.get('referrer') or 'Direct'
+            if not referrer or referrer == '':
+                referrer = 'Direct'
+            referrers[referrer] = referrers.get(referrer, 0) + 1
+    
+    top_referrers = sorted(referrers.items(), key=lambda x: x[1], reverse=True)[:5]
+    
+    # Average metrics
+    avg_events_per_session = round(total_events / unique_sessions, 2) if unique_sessions > 0 else 0
+    
     return {
         "total_pageviews": total_pageviews,
         "unique_sessions": unique_sessions,
         "total_events": total_events,
+        "avg_events_per_session": avg_events_per_session,
+        "pageviews_change": pageviews_change,
+        "sessions_change": sessions_change,
+        "events_change": events_change,
         "top_pages": [{"url": url, "views": count} for url, count in top_pages],
-        "daily_traffic": [{"date": date, "count": count} for date, count in sorted(daily_traffic.items())]
+        "daily_traffic": [{"date": date, "count": count} for date, count in sorted(daily_traffic.items())],
+        "browsers": dict(sorted(browsers.items(), key=lambda x: x[1], reverse=True)[:5]),
+        "referrers": [{"source": ref, "count": count} for ref, count in top_referrers]
     }
 
 @api_router.get("/analytics/{project_id}/export")
