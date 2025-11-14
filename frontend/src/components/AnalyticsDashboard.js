@@ -209,25 +209,94 @@ export default function AnalyticsDashboard({ projectId }) {
           <p className="text-sm text-slate-600 mb-6">Daily traffic breakdown - Shows total events per day over selected period</p>
           {analytics?.daily_traffic && analytics.daily_traffic.length > 0 ? (
             <div className="space-y-4">
-              {/* Simplified line chart representation */}
-              <div className="h-64 flex items-end gap-2 justify-between">
-                {analytics.daily_traffic.map((day, index) => {
+              {/* SVG Line Chart with smooth curves */}
+              <svg width="100%" height="280" viewBox="0 0 800 280" className="w-full" style={{ overflow: 'visible' }}>
+                {/* Grid background */}
+                <defs>
+                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                
+                {/* Horizontal grid lines */}
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <line key={`grid-${i}`} x1="40" y1={40 + (i * 56)} x2="780" y2={40 + (i * 56)} stroke="#e2e8f0" strokeWidth="1" />
+                ))}
+                
+                {/* Y-axis */}
+                <line x1="40" y1="20" x2="40" y2="240" stroke="#cbd5e1" strokeWidth="2" />
+                {/* X-axis */}
+                <line x1="40" y1="240" x2="780" y2="240" stroke="#cbd5e1" strokeWidth="2" />
+                
+                {/* Y-axis labels */}
+                {[0, 1, 2, 3, 4].map((i) => {
                   const maxCount = Math.max(...analytics.daily_traffic.map(d => d.count));
-                  const height = maxCount > 0 ? (day.count / maxCount) * 100 : 0;
+                  const label = Math.round((maxCount / 4) * (4 - i));
                   return (
-                    <div 
-                      key={index} 
-                      className="flex-1 flex flex-col items-center group"
-                      title={`${day.date}: ${day.count} events`}
-                    >
-                      <div className="w-full bg-gradient-to-t from-blue-400 to-blue-300 rounded-t opacity-70 hover:opacity-100 transition-all" 
-                        style={{ height: `${Math.max(height, 5)}%`, minHeight: '5%' }}>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-2 font-medium">{day.date.slice(-2)}</p>
-                    </div>
+                    <text key={`label-${i}`} x="30" y={47 + (i * 56)} fontSize="12" fill="#64748b" textAnchor="end">
+                      {label}
+                    </text>
                   );
                 })}
-              </div>
+                
+                {/* Generate line path and area */}
+                {(() => {
+                  const maxCount = Math.max(...analytics.daily_traffic.map(d => d.count));
+                  const dataPoints = analytics.daily_traffic.map((day, index) => {
+                    const x = 60 + (index / (analytics.daily_traffic.length - 1 || 1)) * 720;
+                    const y = 240 - ((day.count / maxCount) * 200);
+                    return { x, y, ...day };
+                  });
+                  
+                  // Build smooth curve path
+                  let pathD = `M ${dataPoints[0].x} ${dataPoints[0].y}`;
+                  for (let i = 1; i < dataPoints.length; i++) {
+                    const prev = dataPoints[i - 1];
+                    const curr = dataPoints[i];
+                    const cp1x = prev.x + 40;
+                    const cp1y = prev.y;
+                    const cp2x = curr.x - 40;
+                    const cp2y = curr.y;
+                    pathD += ` C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${curr.x} ${curr.y}`;
+                  }
+                  
+                  return (
+                    <>
+                      {/* Area under curve */}
+                      <path d={`${pathD} L ${dataPoints[dataPoints.length - 1].x} 240 L ${dataPoints[0].x} 240 Z`} 
+                            fill="url(#areaGradient)" />
+                      
+                      {/* Line */}
+                      <path d={pathD} stroke="#3b82f6" strokeWidth="3" fill="none" />
+                      
+                      {/* Data points */}
+                      {dataPoints.map((point, index) => (
+                        <g key={`point-${index}`}>
+                          <circle cx={point.x} cy={point.y} r="5" fill="#3b82f6" opacity="0" className="hover:opacity-100 transition-opacity" />
+                          <circle cx={point.x} cy={point.y} r="3" fill="#fff" stroke="#3b82f6" strokeWidth="2" />
+                          {/* Tooltip on hover */}
+                          <title>{`${point.date}: ${point.count} events`}</title>
+                        </g>
+                      ))}
+                    </>
+                  );
+                })()}
+                
+                {/* X-axis labels */}
+                {analytics.daily_traffic.map((day, index) => {
+                  if (index % Math.ceil(analytics.daily_traffic.length / 5) === 0 || index === analytics.daily_traffic.length - 1) {
+                    const x = 60 + (index / (analytics.daily_traffic.length - 1 || 1)) * 720;
+                    return (
+                      <text key={`x-label-${index}`} x={x} y="260" fontSize="12" fill="#64748b" textAnchor="middle">
+                        {day.date.slice(-2)}
+                      </text>
+                    );
+                  }
+                  return null;
+                })}
+              </svg>
+              
               <div className="flex gap-6 text-xs text-slate-600 mt-4 px-4 py-2 bg-slate-50 rounded-lg">
                 <div><span className="inline-block w-3 h-3 bg-blue-400 rounded mr-2"></span>Events per Day</div>
               </div>
