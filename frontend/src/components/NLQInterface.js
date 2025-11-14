@@ -45,7 +45,7 @@ export default function NLQInterface({ projectId }) {
       {/* Input Section */}
       <Card className="bg-white rounded-2xl shadow-lg p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -80,7 +80,7 @@ export default function NLQInterface({ projectId }) {
               data-testid="nlq-submit-button"
               type="submit"
               disabled={loading || !question.trim()}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6"
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-6"
             >
               {loading ? (
                 <span className="animate-pulse">Thinking...</span>
@@ -101,7 +101,7 @@ export default function NLQInterface({ projectId }) {
                   key={index}
                   data-testid={`suggested-question-${index}`}
                   onClick={() => setQuestion(q)}
-                  className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium hover:bg-indigo-100 transition-colors"
+                  className="px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-100 transition-colors"
                 >
                   {q}
                 </button>
@@ -118,7 +118,7 @@ export default function NLQInterface({ projectId }) {
             <div className="mb-4">
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <TrendingUp className="w-4 h-4 text-indigo-600" />
+                  <TrendingUp className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm text-slate-600 mb-2">Your Question</div>
@@ -139,7 +139,7 @@ export default function NLQInterface({ projectId }) {
                   {result.insights && result.insights.length > 0 && (
                     <div className="mt-4 space-y-2">
                       {result.insights.map((insight, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-indigo-700 bg-indigo-50 px-3 py-2 rounded-lg">
+                        <div key={i} className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-lg">
                           <Sparkles className="w-4 h-4" />
                           {insight}
                         </div>

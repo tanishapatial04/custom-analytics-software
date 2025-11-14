@@ -62,7 +62,7 @@ export default function AnalyticsDashboard({ projectId }) {
   if (loading) {
     return (
       <div className="text-center py-20">
-        <Activity className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+        <Activity className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
         <p className="text-slate-600">Loading analytics...</p>
       </div>
     );
@@ -75,7 +75,7 @@ export default function AnalyticsDashboard({ projectId }) {
         <Button
           data-testid="export-csv-button"
           onClick={handleExportCSV}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium"
         >
           <Download className="w-4 h-4 mr-2" />
           Export CSV Report
@@ -94,7 +94,7 @@ export default function AnalyticsDashboard({ projectId }) {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg" data-testid="metric-pageviews">
+        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg" data-testid="metric-pageviews">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
               <Eye className="w-6 h-6" />
@@ -118,7 +118,7 @@ export default function AnalyticsDashboard({ projectId }) {
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg" data-testid="metric-events">
+        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg" data-testid="metric-events">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
               <Activity className="w-6 h-6" />
@@ -134,7 +134,7 @@ export default function AnalyticsDashboard({ projectId }) {
       {/* Top Pages */}
       <Card className="bg-white rounded-2xl shadow-lg p-8" data-testid="top-pages-card">
         <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-          <TrendingUp className="w-6 h-6 mr-2 text-indigo-600" />
+          <TrendingUp className="w-6 h-6 mr-2 text-purple-600" />
           Top Pages
         </h3>
         {analytics?.top_pages && analytics.top_pages.length > 0 ? (
@@ -142,7 +142,7 @@ export default function AnalyticsDashboard({ projectId }) {
             {analytics.top_pages.map((page, index) => (
               <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {index + 1}
                   </div>
                   <div className="text-slate-700 font-medium truncate max-w-md">{page.url}</div>
@@ -169,7 +169,7 @@ export default function AnalyticsDashboard({ projectId }) {
                   <div className="text-sm text-slate-600 font-medium w-24">{day.date}</div>
                   <div className="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden">
                     <div 
-                      className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full flex items-center justify-end px-3 transition-all"
+                      className="bg-gradient-to-r from-purple-500 to-purple-600 h-full rounded-full flex items-center justify-end px-3 transition-all"
                       style={{ width: `${width}%` }}
                     >
                       <span className="text-white text-sm font-semibold">{day.count}</span>

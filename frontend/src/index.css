@@ -84,6 +84,8 @@ code {
     }
 }
 
+/* (Removed no-color/grayscale mode) */
+
 @layer base {
     [data-debug-wrapper="true"] {
         display: contents !important;

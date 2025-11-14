@@ -96,7 +96,7 @@ export default function ProjectSettings({ user, onLogout }) {
               Back
             </Button>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-8 h-8 text-indigo-600" />
+              <TrendingUp className="w-8 h-8 text-purple-600" />
               <span className="text-2xl font-bold text-slate-900">DataForge</span>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function ProjectSettings({ user, onLogout }) {
             <Button
               data-testid="copy-tracking-code-button"
               onClick={copyToClipboard}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               {copied ? (
                 <><CheckCircle className="w-4 h-4 mr-2" />Copied!</>

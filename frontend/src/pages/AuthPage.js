@@ -40,12 +40,12 @@ export default function AuthPage({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <TrendingUp className="w-10 h-10 text-indigo-600" />
+            <div className="flex items-center justify-center gap-2 mb-2">
+            <TrendingUp className="w-10 h-10 text-purple-600" />
             <span className="text-3xl font-bold text-slate-900">DataForge</span>
           </div>
           <p className="text-slate-600">AI-powered analytics platform</p>
@@ -111,7 +111,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="submit-auth-button"
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium"
             >
               {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
             </Button>
@@ -122,7 +122,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="toggle-auth-mode-button"
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
+              className="text-purple-600 hover:text-purple-700 font-medium"
             >
               {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </button>
