@@ -170,6 +170,11 @@ async def login(input: TenantLogin):
     token = create_token(tenant_doc['id'], tenant_doc['email'])
     return {"token": token, "tenant": {"id": tenant_doc['id'], "name": tenant_doc['name'], "email": tenant_doc['email']}}
 
+@api_router.options("/auth/register")
+@api_router.options("/auth/login")
+async def preflight_auth():
+    return {"status": "ok"}
+
 # ==================== PROJECT ROUTES ====================
 
 @api_router.post("/projects", response_model=Project)
@@ -456,15 +461,19 @@ async def root():
     return {"message": "Analytics Platform API", "version": "1.0.0"}
 
 # Include router and middleware
-app.include_router(api_router)
+# IMPORTANT: Add middleware BEFORE including router for proper preflight handling
+cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
+cors_origins = [origin.strip() for origin in cors_origins]  # Clean whitespace
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api_router)
 
 logging.basicConfig(
     level=logging.INFO,
