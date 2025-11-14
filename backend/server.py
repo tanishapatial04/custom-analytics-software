@@ -170,11 +170,6 @@ async def login(input: TenantLogin):
     token = create_token(tenant_doc['id'], tenant_doc['email'])
     return {"token": token, "tenant": {"id": tenant_doc['id'], "name": tenant_doc['name'], "email": tenant_doc['email']}}
 
-@api_router.options("/auth/register")
-@api_router.options("/auth/login")
-async def preflight_auth():
-    return {"status": "ok"}
-
 # ==================== PROJECT ROUTES ====================
 
 @api_router.post("/projects", response_model=Project)
@@ -462,13 +457,16 @@ async def root():
 
 # Include router and middleware
 # IMPORTANT: Add middleware BEFORE including router for proper preflight handling
-cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
-cors_origins = [origin.strip() for origin in cors_origins]  # Clean whitespace
+cors_origins_str = os.environ.get('CORS_ORIGINS', '*')
+cors_origins = [o.strip() for o in cors_origins_str.split(',') if o.strip()]
+
+# When using wildcard, cannot use allow_credentials=True
+allow_creds = '*' not in cors_origins
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=cors_origins,
+    allow_credentials=allow_creds,
+    allow_origins=cors_origins if '*' not in cors_origins else ['*'],
     allow_methods=["*"],
     allow_headers=["*"],
 )
