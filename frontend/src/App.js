@@ -18,6 +18,12 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
 
+  // Ensure axios has the Authorization header immediately on first render
+  // This prevents child components from firing requests before the header
+  // is set (which can cause a 401 and show the "Failed to load projects" toast)
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
