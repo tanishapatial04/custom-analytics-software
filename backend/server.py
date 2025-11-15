@@ -15,6 +15,10 @@ import jwt
 import json
 import csv
 import io
+try:
+    import geoip2.database
+except Exception:
+    geoip2 = None
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -23,6 +27,15 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Initialize GeoIP reader if DB available
+GEOIP_DB = os.environ.get('GEOIP_DB_PATH', str(ROOT_DIR / 'GeoLite2-Country.mmdb'))
+geoip_reader = None
+if 'geoip2' in globals() and geoip2 is not None:
+    try:
+        geoip_reader = geoip2.database.Reader(GEOIP_DB)
+    except Exception:
+        geoip_reader = None
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
@@ -81,6 +94,8 @@ class Event(BaseModel):
     page_title: Optional[str] = None
     referrer: Optional[str] = None
     user_agent: Optional[str] = None
+    country: Optional[str] = None
+    continent: Optional[str] = None
     ip_hash: Optional[str] = None
     properties: Optional[Dict[str, Any]] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -224,6 +239,19 @@ async def track_event(event_input: EventCreate):
     ip_hash = None
     if event_input.ip_address and privacy_settings.get('anonymize_ip', True):
         ip_hash = hashlib.sha256(event_input.ip_address.encode()).hexdigest()[:16]
+    # GeoIP lookup (country / continent) when available
+    country_iso = None
+    continent_name = None
+    if event_input.ip_address and geoip_reader:
+        try:
+            rec = geoip_reader.country(event_input.ip_address)
+            if rec and rec.country:
+                country_iso = rec.country.iso_code
+            if rec and rec.continent:
+                continent_name = rec.continent.name
+        except Exception:
+            country_iso = None
+            continent_name = None
     
     event = Event(
         project_id=event_input.project_id,
@@ -234,6 +262,8 @@ async def track_event(event_input: EventCreate):
         page_title=event_input.page_title,
         referrer=event_input.referrer,
         user_agent=event_input.user_agent,
+        country=country_iso,
+        continent=continent_name,
         ip_hash=ip_hash,
         properties=event_input.properties
     )
@@ -333,6 +363,20 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
             referrers[referrer] = referrers.get(referrer, 0) + 1
     
     top_referrers = sorted(referrers.items(), key=lambda x: x[1], reverse=True)[:5]
+
+    # Continent aggregation (uses stored continent from GeoIP when available)
+    continent_counts = {}
+    for e in events:
+        if e['event_type'] == 'pageview':
+            cont = e.get('continent')
+            if cont and cont != '':
+                continent_counts[cont] = continent_counts.get(cont, 0) + 1
+
+    # Build continent list sorted by count
+    continents_list = [
+        {"name": name, "count": count, "percentage": round((count / total_pageviews * 100), 1) if total_pageviews > 0 else 0}
+        for name, count in sorted(continent_counts.items(), key=lambda x: x[1], reverse=True)
+    ]
     
     # Average metrics
     avg_events_per_session = round(total_events / unique_sessions, 2) if unique_sessions > 0 else 0
@@ -348,7 +392,8 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
         "top_pages": [{"url": url, "views": count} for url, count in top_pages],
         "daily_traffic": [{"date": date, "count": count} for date, count in sorted(daily_traffic.items())],
         "browsers": dict(sorted(browsers.items(), key=lambda x: x[1], reverse=True)[:5]),
-        "referrers": [{"source": ref, "count": count} for ref, count in top_referrers]
+        "referrers": [{"source": ref, "count": count} for ref, count in top_referrers],
+        "continents": continents_list
     }
 
 @api_router.get("/analytics/{project_id}/export")
