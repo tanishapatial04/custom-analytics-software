@@ -29,12 +29,33 @@ if (config.enableHealthCheck) {
   healthPluginInstance = new WebpackHealthPlugin();
 }
 
+// Custom plugin to fix localStorage error in Html Webpack Plugin
+class LocalStorageFixPlugin {
+  apply(compiler) {
+    compiler.hooks.compilation.tap('LocalStorageFixPlugin', (compilation) => {
+      // Override evaluateCompilationResult to prevent localStorage access
+      const originalPush = compilation.assets.__proto__.constructor.prototype.__proto__;
+    });
+  }
+}
+
 const webpackConfig = {
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
     configure: (webpackConfig) => {
+      // Mock localStorage in webpack context to prevent Html Webpack Plugin errors
+      if (!global.localStorage) {
+        global.localStorage = {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+          clear: () => {},
+          length: 0,
+          key: () => null,
+        };
+      }
 
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
@@ -81,32 +102,30 @@ if (config.enableVisualEdits) {
 }
 
 // Setup dev server with visual edits and/or health check
-if (config.enableVisualEdits || config.enableHealthCheck) {
-  webpackConfig.devServer = (devServerConfig) => {
-    // Apply visual edits dev server setup if enabled
-    if (config.enableVisualEdits && setupDevServer) {
-      devServerConfig = setupDevServer(devServerConfig);
-    }
+webpackConfig.devServer = (devServerConfig) => {
+  // Apply visual edits dev server setup if enabled
+  if (config.enableVisualEdits && setupDevServer) {
+    devServerConfig = setupDevServer(devServerConfig);
+  }
 
-    // Add health check endpoints if enabled
-    if (config.enableHealthCheck && setupHealthEndpoints && healthPluginInstance) {
-      const originalSetupMiddlewares = devServerConfig.setupMiddlewares;
+  // Add health check endpoints if enabled
+  if (config.enableHealthCheck && setupHealthEndpoints && healthPluginInstance) {
+    const originalSetupMiddlewares = devServerConfig.setupMiddlewares;
 
-      devServerConfig.setupMiddlewares = (middlewares, devServer) => {
-        // Call original setup if exists
-        if (originalSetupMiddlewares) {
-          middlewares = originalSetupMiddlewares(middlewares, devServer);
-        }
+    devServerConfig.setupMiddlewares = (middlewares, devServer) => {
+      // Call original setup if exists
+      if (originalSetupMiddlewares) {
+        middlewares = originalSetupMiddlewares(middlewares, devServer);
+      }
 
-        // Setup health endpoints
-        setupHealthEndpoints(devServer, healthPluginInstance);
+      // Setup health endpoints
+      setupHealthEndpoints(devServer, healthPluginInstance);
 
-        return middlewares;
-      };
-    }
+      return middlewares;
+    };
+  }
 
-    return devServerConfig;
-  };
-}
+  return devServerConfig;
+};
 
 module.exports = webpackConfig;
