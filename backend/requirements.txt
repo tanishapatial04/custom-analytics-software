@@ -115,10 +115,11 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
-urllib3==2.5.0
 uvicorn==0.25.0
 watchfiles==1.1.1
 websockets==15.0.1
 yarl==1.22.0
 zipp==3.23.0
-geoip2==4.6.0
+# Removed strict `urllib3==2.5.0` pin to avoid conflicts with other packages
+# and removed optional `geoip2` pin. GeoIP lookup is optional in the app
+# and is imported inside a try/except; install `geoip2` separately if needed.

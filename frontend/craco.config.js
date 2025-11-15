@@ -1,4 +1,16 @@
 // craco.config.js
+// Mock localStorage immediately to prevent Html Webpack Plugin errors during configuration
+if (typeof global !== 'undefined' && !global.localStorage) {
+  global.localStorage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+    length: 0,
+    key: () => null,
+  };
+}
+
 const path = require("path");
 require("dotenv").config();
 
@@ -29,34 +41,12 @@ if (config.enableHealthCheck) {
   healthPluginInstance = new WebpackHealthPlugin();
 }
 
-// Custom plugin to fix localStorage error in Html Webpack Plugin
-class LocalStorageFixPlugin {
-  apply(compiler) {
-    compiler.hooks.compilation.tap('LocalStorageFixPlugin', (compilation) => {
-      // Override evaluateCompilationResult to prevent localStorage access
-      const originalPush = compilation.assets.__proto__.constructor.prototype.__proto__;
-    });
-  }
-}
-
 const webpackConfig = {
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
     configure: (webpackConfig) => {
-      // Mock localStorage in webpack context to prevent Html Webpack Plugin errors
-      if (!global.localStorage) {
-        global.localStorage = {
-          getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {},
-          clear: () => {},
-          length: 0,
-          key: () => null,
-        };
-      }
-
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
         // Remove hot reload related plugins
