@@ -338,7 +338,10 @@ def main():
     print("🚀 DataForge Analytics Platform - Backend API Tests")
     print("="*60)
     
-    tester = AnalyticsPlatformTester()
+    base_url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000/api"
+    print(f"📍 Base URL: {base_url}\n")
+    
+    tester = AnalyticsPlatformTester(base_url)
     
     # Run all tests in sequence
     print("\n📋 Running Backend API Tests...\n")

@@ -237,7 +237,7 @@ export default function AnalyticsDashboard({ projectId }) {
                   const maxCount = Math.max(...analytics.daily_traffic.map(d => d.count));
                   const label = Math.round((maxCount / 4) * (4 - i));
                   return (
-                    <text key={`label-${i}`} x="30" y={47 + (i * 56)} fontSize="12" fill="#64748b" textAnchor="end">
+                    <text key={`label-${i}`} x="30" y={47 + (i * 56)} fontSize="10" fill="#64748b" textAnchor="end">
                       {label}
                     </text>
                   );
@@ -291,7 +291,7 @@ export default function AnalyticsDashboard({ projectId }) {
                   if (index % Math.ceil(analytics.daily_traffic.length / 5) === 0 || index === analytics.daily_traffic.length - 1) {
                     const x = 60 + (index / (analytics.daily_traffic.length - 1 || 1)) * 720;
                     return (
-                      <text key={`x-label-${index}`} x={x} y="260" fontSize="12" fill="#64748b" textAnchor="middle">
+                      <text key={`x-label-${index}`} x={x} y="260" fontSize="10" fill="#64748b" textAnchor="middle">
                         {day.date.slice(-2)}
                       </text>
                     );
@@ -462,7 +462,7 @@ export default function AnalyticsDashboard({ projectId }) {
         {totalPageviews === 0 ? (
           <p className="text-slate-500 text-center py-8">No referrer data available</p>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left column - Overview donuts */}
             <div className="lg:col-span-1 space-y-4">
               {(() => {
@@ -527,6 +527,117 @@ export default function AnalyticsDashboard({ projectId }) {
                   );
                 });
               })()}
+            </div>
+
+            {/* Right column - Continent Traffic Bar Chart */}
+            <div className="lg:col-span-1">
+              <h4 className="text-sm font-semibold text-slate-900 mb-6">Traffic by Continent</h4>
+              {analytics?.continents && analytics.continents.length > 0 ? (
+                <div className="w-full">
+                  {/* SVG Bar Chart */}
+                  <svg width="100%" height="280" viewBox="0 0 500 280" preserveAspectRatio="none" className="w-full" style={{ overflow: 'visible' }}>
+                    {/* Background grid lines */}
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <g key={`grid-${i}`}>
+                        <line x1="30" y1={240 - (i * 40)} x2="500" y2={240 - (i * 40)} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2,2" />
+                        <text x="25" y={243 - (i * 40)} fontSize="10" fill="#94a3b8" textAnchor="end">
+                          {Math.round((i * 5))}
+                        </text>
+                      </g>
+                    ))}
+                    
+                    {/* Y-axis */}
+                    <line x1="30" y1="10" x2="30" y2="240" stroke="#cbd5e1" strokeWidth="2" />
+                    {/* X-axis */}
+                    <line x1="30" y1="240" x2="500" y2="240" stroke="#cbd5e1" strokeWidth="2" />
+
+                    {/* Bars */}
+                    {(() => {
+                      const maxPercentage = 100;
+                      const barWidth = (460 / analytics.continents.length) * 0.7;
+                      const spacing = 460 / analytics.continents.length;
+                      const colors = ['#c7b9f7', '#7dd3fc', '#86efac', '#fcd34d', '#fca5a5', '#f0a4d4'];
+                      
+                      return analytics.continents.map((continent, index) => {
+                        const barHeight = (continent.percentage / maxPercentage) * 200;
+                        const xPos = 40 + (index * spacing);
+                        const yPos = 240 - barHeight;
+                        const barColor = colors[index % colors.length];
+                        
+                        return (
+                          <g key={`bar-${index}`}>
+                            {/* Bar */}
+                            <rect
+                              x={xPos}
+                              y={yPos}
+                              width={barWidth}
+                              height={barHeight}
+                              fill={barColor}
+                              rx="3"
+                              className="transition-all hover:opacity-80 cursor-pointer"
+                              opacity="1"
+                            >
+                              <title>{`${continent.name}: ${continent.count} (${continent.percentage}%)`}</title>
+                            </rect>
+                            
+                            {/* Value label on top of bar */}
+                            {barHeight > 15 && (
+                              <text
+                                x={xPos + barWidth / 2}
+                                y={yPos - 5}
+                                fontSize="10"
+                                fontWeight="bold"
+                                fill="#1e293b"
+                                textAnchor="middle"
+                              >
+                                {continent.percentage}%
+                              </text>
+                            )}
+                            
+                            {/* Continent label below */}
+                            <text
+                              x={xPos + barWidth / 2}
+                              y="260"
+                              fontSize="11"
+                              fill="#475569"
+                              textAnchor="middle"
+                              fontWeight="500"
+                            >
+                              {continent.name.split(' ')[0]}
+                            </text>
+                          </g>
+                        );
+                      });
+                    })()}
+
+                    {/* Y-axis label */}
+                    <text x="12" y="125" fontSize="11" fill="#94a3b8" textAnchor="middle" transform="rotate(-90, 12, 125)">
+                      %
+                    </text>
+                  </svg>
+
+                  {/* Legend - Below Chart */}
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    {analytics.continents.map((continent, index) => {
+                      const colors = ['#c7b9f7', '#7dd3fc', '#86efac', '#fcd34d', '#fca5a5', '#f0a4d4'];
+                      const barColor = colors[index % colors.length];
+                      return (
+                        <div key={index} className="flex items-center gap-2 text-xs">
+                          <div
+                            className="w-3 h-3 rounded"
+                            style={{ backgroundColor: barColor }}
+                          />
+                          <span className="text-slate-700">
+                            {continent.name} <span className="text-slate-500 font-medium">({continent.count})</span>
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-slate-500 text-center py-8 text-sm">No continent data available</p>
+              )}
             </div>
           </div>
         )}
