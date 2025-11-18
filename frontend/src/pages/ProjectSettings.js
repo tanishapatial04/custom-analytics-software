@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { toast } from 'sonner';
 import { TrendingUp, ArrowLeft, Copy, Code, CheckCircle } from 'lucide-react';
+import { Trash } from 'lucide-react';
 
 export default function ProjectSettings({ user, onLogout }) {
   const { projectId } = useParams();
@@ -12,6 +13,9 @@ export default function ProjectSettings({ user, onLogout }) {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchProject();
@@ -76,6 +80,36 @@ export default function ProjectSettings({ user, onLogout }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const openDeleteModal = () => {
+    setDeleteConfirmText('');
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteConfirmText('');
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    if (deleteConfirmText !== project.name) {
+      toast.error('Project name does not match. Type the exact project name to confirm.');
+      return;
+    }
+    try {
+      setDeleting(true);
+      // Call delete endpoint - adjust path if your API uses /api prefix
+      await axios.delete(`/projects/${project.id}`);
+      toast.success('Project deleted successfully');
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error('Failed to delete project');
+    } finally {
+      setDeleting(false);
+      closeDeleteModal();
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen bg-slate-50 flex items-center justify-center">Loading...</div>;
   }
@@ -115,11 +149,11 @@ export default function ProjectSettings({ user, onLogout }) {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-slate-600">Project Name</label>
-              <div className="mt-1 text-lg text-slate-900">{project?.name}</div>
+              <div className="mt-1 text-sm text-slate-700 font-mono bg-slate-100 px-3 py-2 rounded">{project?.name}</div>
             </div>
             <div>
               <label className="text-sm font-medium text-slate-600">Domain</label>
-              <div className="mt-1 text-lg text-slate-900">{project?.domain}</div>
+              <div className="mt-1 text-sm text-slate-700 font-mono bg-slate-100 px-3 py-2 rounded">{project?.domain}</div>
             </div>
             <div>
               <label className="text-sm font-medium text-slate-600">Project ID</label>
@@ -129,6 +163,56 @@ export default function ProjectSettings({ user, onLogout }) {
             </div>
           </div>
         </Card>
+
+        {/* Delete Project */}
+        <Card className="bg-white rounded-2xl shadow-lg p-8 mb-8" data-testid="delete-project-card">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Danger Zone</h2>
+              <p className="text-sm text-slate-600">Permanently delete this project and all associated data. This action cannot be undone.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={openDeleteModal}
+                data-testid="open-delete-modal-button"
+              >
+                <Trash className="w-4 h-4 mr-2" /> Delete Project
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl max-w-xl w-full p-6">
+              <h3 className="text-xl font-bold mb-2">Confirm Project Deletion</h3>
+              <p className="text-sm text-slate-600 mb-4">To permanently delete the project, type the project name below exactly: <span className="font-medium">{project?.name}</span></p>
+
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                className="w-full border border-slate-200 rounded px-3 py-2 mb-4"
+                placeholder="Type project name to confirm"
+                data-testid="delete-confirm-input"
+              />
+
+              <div className="flex justify-end gap-3">
+                <Button variant="ghost" onClick={closeDeleteModal} className="text-slate-600">Cancel</Button>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={handleDeleteProject}
+                  disabled={deleteConfirmText !== project?.name || deleting}
+                  data-testid="confirm-delete-button"
+                >
+                  {deleting ? 'Deleting...' : 'Delete Project'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tracking Code */}
         <Card className="bg-white rounded-2xl shadow-lg p-8 mb-8" data-testid="tracking-code-card">
