@@ -85,9 +85,9 @@ export default function AnalyticsDashboard({ projectId }) {
   const avgEventsPerSession = analytics?.avg_events_per_session || 0;
   
   // Dynamic percentage changes from backend
-  const pageviewsChange = analytics?.pageviews_change || 0;
-  const sessionsChange = analytics?.sessions_change || 0;
-  const eventsChange = analytics?.events_change || 0;
+  const pageviewsChange = typeof analytics?.pageviews_change === 'number' ? analytics.pageviews_change : 0;
+  const sessionsChange = typeof analytics?.sessions_change === 'number' ? analytics.sessions_change : 0;
+  const eventsChange = typeof analytics?.events_change === 'number' ? analytics.events_change : 0;
   
   // Browser distribution data
   const browsers = analytics?.browsers || {};
@@ -101,9 +101,13 @@ export default function AnalyticsDashboard({ projectId }) {
   const directTraffic = referrers.filter(r => r.source === 'Direct' || r.source === '')[0];
   
   // Calculate pie chart percentages for distribution
+  // Pageviews are event_type='pageview', Sessions are unique_sessions, Other events are remaining
   const pageviewsPercent = totalEvents > 0 ? Math.round((totalPageviews / totalEvents) * 100) : 0;
-  const sessionsPercent = totalEvents > 0 ? Math.round((uniqueSessions / totalEvents) * 100) : 0;
-  const otherPercent = Math.max(0, 100 - pageviewsPercent - sessionsPercent);
+  // Sessions percentage: if we have unique_sessions and total_events, calculate how much sessions represent
+  // Assuming sessions is roughly representing the engagement metric
+  const sessionsPercent = totalPageviews > 0 ? Math.round((uniqueSessions / totalPageviews) * 100) : 0;
+  // Other events are anything that's not a pageview or session-derived
+  const otherPercent = Math.max(0, 100 - pageviewsPercent);
 
   return (
     <div className="space-y-6 p-6 bg-slate-50 min-h-screen" data-testid="analytics-dashboard">

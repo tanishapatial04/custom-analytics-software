@@ -317,17 +317,31 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
     prev_total_events = len(prev_events)
     
     # Calculate percentage changes
+    # If there's current data but no previous data, show 100% (first time)
+    # If there's no current data, show -100% (decreased to zero)
     pageviews_change = 0
     if prev_total_pageviews > 0:
         pageviews_change = round(((total_pageviews - prev_total_pageviews) / prev_total_pageviews) * 100, 1)
+    elif total_pageviews > 0 and prev_total_pageviews == 0:
+        pageviews_change = 100  # New data (first time)
+    elif total_pageviews == 0 and prev_total_pageviews > 0:
+        pageviews_change = -100  # No more data
     
     sessions_change = 0
     if prev_unique_sessions > 0:
         sessions_change = round(((unique_sessions - prev_unique_sessions) / prev_unique_sessions) * 100, 1)
+    elif unique_sessions > 0 and prev_unique_sessions == 0:
+        sessions_change = 100  # New data (first time)
+    elif unique_sessions == 0 and prev_unique_sessions > 0:
+        sessions_change = -100  # No more data
     
     events_change = 0
     if prev_total_events > 0:
         events_change = round(((total_events - prev_total_events) / prev_total_events) * 100, 1)
+    elif total_events > 0 and prev_total_events == 0:
+        events_change = 100  # New data (first time)
+    elif total_events == 0 and prev_total_events > 0:
+        events_change = -100  # No more data
     
     # Top pages
     page_counts = {}
