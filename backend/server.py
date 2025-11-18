@@ -569,11 +569,115 @@ async def export_analytics_csv(project_id: str, days: int = 7, user: dict = Depe
     )
 
 # ==================== NLQ ROUTES ====================
-# TODO: Implement NLQ endpoint when LLM integration is ready
-# @api_router.post("/nlq", response_model=NLQResponse)
-# async def process_nlq(request: NLQRequest, user: dict = Depends(verify_token)):
-#     # Placeholder for NLQ implementation
-#     pass
+
+@api_router.post("/nlq", response_model=NLQResponse)
+async def process_nlq(request: NLQRequest, user: dict = Depends(verify_token)):
+    """
+    Process natural language queries about analytics data.
+    Returns insights and data based on the question asked.
+    """
+    # Verify project ownership
+    project = await db.projects.find_one({"id": request.project_id, "tenant_id": user['tenant_id']}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get analytics data
+    days = 7
+    if request.date_range == "30d":
+        days = 30
+    elif request.date_range == "90d":
+        days = 90
+    
+    start_date = datetime.now(timezone.utc) - timedelta(days=days)
+    start_date_iso = start_date.isoformat()
+    
+    events = await db.events.find({
+        "project_id": request.project_id,
+        "timestamp": {"$gte": start_date_iso}
+    }, {"_id": 0}).to_list(10000)
+    
+    # Calculate metrics
+    total_pageviews = sum(1 for e in events if e['event_type'] == 'pageview')
+    unique_sessions = len(set(e['session_id'] for e in events))
+    total_events = len(events)
+    
+    # Top pages
+    page_counts = {}
+    for e in events:
+        if e['event_type'] == 'pageview' and e.get('page_url'):
+            page_counts[e['page_url']] = page_counts.get(e['page_url'], 0) + 1
+    top_pages = sorted(page_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    
+    # Process question and generate answer
+    question_lower = request.question.lower()
+    answer = ""
+    data = {}
+    insights = []
+    
+    # Simple keyword matching for NLQ processing
+    if any(word in question_lower for word in ['traffic', 'trend', 'pageview', 'view']):
+        answer = f"Your website received {total_pageviews} pageviews over the last {days} days from {unique_sessions} unique sessions."
+        data = {
+            "pageviews": total_pageviews,
+            "sessions": unique_sessions,
+            "period_days": days
+        }
+        if total_pageviews > 100:
+            insights.append(f"Strong traffic performance with {total_pageviews} pageviews")
+        elif total_pageviews > 0:
+            insights.append(f"Moderate traffic with {total_pageviews} pageviews")
+        else:
+            insights.append("No traffic data available for this period")
+    
+    elif any(word in question_lower for word in ['popular', 'page', 'top', 'most', 'visited']):
+        if top_pages:
+            top_page_names = ', '.join([page[0] for page in top_pages[:3]])
+            answer = f"Your most popular pages are: {top_page_names}. The top page has {top_pages[0][1]} views."
+            data = {
+                "top_pages": [{"url": url, "views": count} for url, count in top_pages],
+                "top_page_views": top_pages[0][1] if top_pages else 0
+            }
+            insights.append(f"The page '{top_pages[0][0]}' is your best performer")
+        else:
+            answer = "No page data available yet."
+            data = {"top_pages": []}
+    
+    elif any(word in question_lower for word in ['visitor', 'session', 'user', 'unique']):
+        answer = f"You have {unique_sessions} unique visitor sessions in the last {days} days."
+        data = {
+            "unique_sessions": unique_sessions,
+            "period_days": days
+        }
+        if unique_sessions > 0:
+            avg_events = total_events / unique_sessions
+            insights.append(f"Average {avg_events:.1f} events per session")
+    
+    elif any(word in question_lower for word in ['event', 'interaction', 'click', 'engagement']):
+        answer = f"Total events tracked: {total_events} over the last {days} days."
+        data = {
+            "total_events": total_events,
+            "period_days": days
+        }
+        if unique_sessions > 0:
+            avg_events = total_events / unique_sessions
+            insights.append(f"Average engagement: {avg_events:.1f} events per visitor")
+    
+    else:
+        # Default response
+        answer = f"Based on your analytics: {total_pageviews} pageviews, {unique_sessions} unique sessions, {total_events} total events over the last {days} days."
+        data = {
+            "pageviews": total_pageviews,
+            "sessions": unique_sessions,
+            "total_events": total_events,
+            "period_days": days
+        }
+    
+    return NLQResponse(
+        question=request.question,
+        answer=answer,
+        data=data,
+        insights=insights
+    )
 
 # ==================== HEALTH CHECK ====================
 

@@ -26,8 +26,10 @@ export default function NLQInterface({ projectId }) {
       
       setResults([{ question, ...response.data }, ...results]);
       setQuestion('');
+      toast.success('Query processed successfully');
     } catch (error) {
-      toast.error('Failed to process question');
+      console.error('NLQ Error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to process question');
     } finally {
       setLoading(false);
     }
