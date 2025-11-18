@@ -335,7 +335,7 @@ class AnalyticsPlatformTester:
 
 def main():
     print("="*60)
-    print("🚀 DataForge Analytics Platform - Backend API Tests")
+    print("🚀 Intellica Analytics Platform - Backend API Tests")
     print("="*60)
     
     base_url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000/api"

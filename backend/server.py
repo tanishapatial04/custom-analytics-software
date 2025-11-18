@@ -435,7 +435,7 @@ async def export_analytics_csv(project_id: str, days: int = 7, user: dict = Depe
     output = io.StringIO()
     
     # Summary Report Section
-    output.write(f"DataForge Analytics Report\n")
+    output.write(f"Intellica Analytics Report\n")
     output.write(f"Project: {project['name']}\n")
     output.write(f"Domain: {project['domain']}\n")
     output.write(f"Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}\n")
