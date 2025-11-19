@@ -15,6 +15,7 @@ import jwt
 import json
 import csv
 import io
+import re
 try:
     import geoip2.database
 except Exception:
@@ -382,7 +383,47 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
                 referrer = 'Direct'
             referrers[referrer] = referrers.get(referrer, 0) + 1
     
-    top_referrers = sorted(referrers.items(), key=lambda x: x[1], reverse=True)[:5]
+    # Aggregate referrers into provider-friendly buckets (Gmail, Outlook, Yahoo, Google, Bing, Direct, etc.)
+    def _provider_for_ref(ref):
+        if not ref:
+            return 'Direct'
+        s = ref.lower()
+        # direct / empty
+        if s in ('direct', 'direct / none', ''):
+            return 'Direct'
+        # common mail providers
+        if 'mail.google' in s or 'gmail' in s:
+            return 'Gmail'
+        if 'outlook' in s or 'office' in s or 'live.com' in s or 'hotmail' in s:
+            return 'Outlook/Hotmail'
+        if 'yahoo' in s:
+            return 'Yahoo Mail'
+        # social / search
+        if 'facebook' in s:
+            return 'Facebook'
+        if 't.co' in s or 'twitter' in s:
+            return 'Twitter'
+        if 'linkedin' in s:
+            return 'LinkedIn'
+        if 'google' in s and 'mail' not in s:
+            return 'Google'
+        if 'bing' in s:
+            return 'Bing'
+        if 'duck' in s:
+            return 'DuckDuckGo'
+        # fallback: extract hostname
+        try:
+            host = re.sub(r'^https?://(www\.)?', '', ref).split('/')[0]
+            return host or ref
+        except Exception:
+            return ref
+
+    provider_counts: Dict[str, int] = {}
+    for raw_ref, cnt in referrers.items():
+        provider = _provider_for_ref(raw_ref)
+        provider_counts[provider] = provider_counts.get(provider, 0) + cnt
+
+    top_referrers = sorted(provider_counts.items(), key=lambda x: x[1], reverse=True)[:10]
 
     # Continent aggregation (uses stored continent from GeoIP when available)
     continent_counts = {}
@@ -409,6 +450,39 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
             {"name": "Oceania", "count": int(total_pageviews * 0.02), "percentage": 2.0},
         ]
         continents_list = demo_continents
+
+    # Device type aggregation (Mobile, Tablet, Desktop, Bot)
+    device_counts = {}
+    for e in events:
+        if e['event_type'] == 'pageview':
+            ua = e.get('user_agent', '') or ''
+            ua_lower = ua.lower()
+            if any(k in ua_lower for k in ['mobile', 'iphone', 'android', 'ipod', 'opera mini']):
+                dev = 'Mobile'
+            elif any(k in ua_lower for k in ['ipad', 'tablet', 'kindle']):
+                dev = 'Tablet'
+            elif any(k in ua_lower for k in ['bot', 'spider', 'crawl']):
+                dev = 'Bot'
+            else:
+                dev = 'Desktop'
+            device_counts[dev] = device_counts.get(dev, 0) + 1
+
+    # Ensure at least empty keys for consistent UI
+    for key in ['Desktop', 'Mobile', 'Tablet', 'Bot']:
+        device_counts.setdefault(key, 0)
+
+    # Country aggregation (uses stored country ISO when available)
+    country_counts = {}
+    for e in events:
+        if e['event_type'] == 'pageview':
+            c = e.get('country') or 'Unknown'
+            country_counts[c] = country_counts.get(c, 0) + 1
+
+    # Build countries list sorted by count (limit to top 10 for payload size)
+    countries_list = [
+        {"iso": name, "count": count, "percentage": round((count / total_pageviews * 100), 1) if total_pageviews > 0 else 0}
+        for name, count in sorted(country_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    ]
     
     # Average metrics
     avg_events_per_session = round(total_events / unique_sessions, 2) if unique_sessions > 0 else 0
@@ -425,7 +499,9 @@ async def get_analytics_overview(project_id: str, days: int = 7, user: dict = De
         "daily_traffic": [{"date": date, "count": count} for date, count in sorted(daily_traffic.items())],
         "browsers": dict(sorted(browsers.items(), key=lambda x: x[1], reverse=True)[:5]),
         "referrers": [{"source": ref, "count": count} for ref, count in top_referrers],
-        "continents": continents_list
+        "continents": continents_list,
+        "devices": device_counts,
+        "countries": countries_list
     }
 
 @api_router.get("/analytics/{project_id}/export")

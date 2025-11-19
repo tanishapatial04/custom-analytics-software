@@ -458,74 +458,79 @@ export default function AnalyticsDashboard({ projectId }) {
         </Card>
       </div>
 
-      {/* Traffic Sources */}
-      <Card className="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
-        <h3 className="text-lg font-bold text-slate-900 mb-2">Traffic Sources</h3>
-        <p className="text-sm text-slate-600 mb-6">Where your visitors are coming from</p>
+      {/* Traffic Sources - outer container; header removed so only inner boxes show backgrounds/shadows */}
+      <Card className="rounded-2xl p-0">
 
-        {totalPageviews === 0 ? (
-          <p className="text-slate-500 text-center py-8">No referrer data available</p>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left column - Overview donuts */}
-            <div className="lg:col-span-1 space-y-4">
+        {/* Show real data when available, otherwise render demo data for all three columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start p-6">
+            {/* Column 1 - Top Referrers (group common providers like Gmail, Yahoo, Outlook) */}
+          <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm h-full">
+              <h4 className="text-sm font-semibold text-slate-900">Top Referrers</h4>
               {(() => {
-                // categorize referrers
-                const searchEngines = ['google', 'bing', 'yahoo', 'duck', 'baidu', 'yandex'];
-                let searchCount = 0;
-                let directCount = 0;
-                let referringCount = 0;
-                let otherCount = 0;
-
-                referrers.forEach(r => {
-                  const src = (r.source || '').toLowerCase();
-                  const c = r.count || 0;
-                  if (!src || src === 'direct') {
-                    directCount += c;
-                  } else if (searchEngines.some(k => src.includes(k))) {
-                    searchCount += c;
-                  } else if (src.startsWith('http') || src.includes('.')) {
-                    referringCount += c;
-                  } else {
-                    otherCount += c;
-                  }
-                });
-
-                // ensure totals
-                const remainder = Math.max(0, totalPageviews - (searchCount + directCount + referringCount + otherCount));
-                otherCount += remainder;
-
-                const items = [
-                  { key: 'Search Engines', count: searchCount, color: 'from-emerald-400 to-teal-400', Icon: Globe },
-                  { key: 'Direct Traffic', count: directCount, color: 'from-sky-400 to-indigo-500', Icon: MapPin },
-                  { key: 'Referring Sites', count: referringCount, color: 'from-purple-500 to-pink-500', Icon: Link },
-                  { key: 'Other', count: otherCount, color: 'from-slate-400 to-slate-600', Icon: ExternalLink }
+                // decide whether to use real data or demo fallback
+                const hasReal = totalPageviews > 0 && referrers && referrers.length > 0;
+                // Demo referrers if no real data
+                const demoReferrers = [
+                  { source: 'Google', count: 45 },
+                  { source: 'Gmail', count: 25 },
+                  { source: 'Outlook/Hotmail', count: 15 },
+                  { source: 'Yahoo Mail', count: 8 },
+                  { source: 'Direct', count: 7 }
                 ];
 
-                return items.map((it, idx) => {
-                  const pct = Math.round((it.count / totalPageviews) * 100);
-                  const dash = `${pct} ${100 - pct}`;
-                  const Icon = it.Icon;
-                  const colorMap = ['#10b981', '#0ea5e9', '#7c3aed', '#64748b'];
-                  const strokeColor = colorMap[idx % colorMap.length];
+                const mapProvider = (src) => {
+                  if (!src) return 'Direct';
+                  const s = src.toLowerCase();
+                  if (s.includes('mail.google') || s.includes('gmail')) return 'Gmail';
+                  if (s.includes('outlook') || s.includes('office') || s.includes('live.com') || s.includes('hotmail')) return 'Outlook/Hotmail';
+                  if (s.includes('yahoo')) return 'Yahoo Mail';
+                  if (s.includes('facebook')) return 'Facebook';
+                  if (s.includes('twitter') || s.includes('t.co')) return 'Twitter';
+                  if (s.includes('linkedin')) return 'LinkedIn';
+                  if (s.includes('google')) return 'Google';
+                  if (s.includes('bing')) return 'Bing';
+                  if (s.includes('duckduckgo') || s.includes('duck')) return 'DuckDuckGo';
+                  if (s === 'direct' || s === 'direct / none') return 'Direct';
+                  try {
+                    const host = (src || '').replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+                    return host || src;
+                  } catch (e) {
+                    return src;
+                  }
+                };
+
+                let sourceList = [];
+                if (hasReal) {
+                  const grouped = {};
+                  referrers.forEach(r => {
+                    const key = mapProvider(r.source || '');
+                    grouped[key] = (grouped[key] || 0) + (r.count || 0);
+                  });
+                  sourceList = Object.entries(grouped).map(([k, v]) => ({ source: k, count: v }));
+                  sourceList.sort((a, b) => b.count - a.count);
+                } else {
+                  sourceList = demoReferrers;
+                }
+
+                const refTotal = totalPageviews > 0 ? totalPageviews : sourceList.reduce((s, it) => s + it.count, 0) || 1;
+
+                return sourceList.slice(0, 8).map((r, idx) => {
+                  const pct = Math.round((r.count / refTotal) * 100);
+                  const display = r.source;
                   return (
-                    <div key={idx} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="w-16 h-16 relative flex items-center justify-center">
-                        <svg viewBox="0 0 36 36" className="w-16 h-16">
-                          <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f1f5f9" strokeWidth="3" />
-                          <circle cx="18" cy="18" r="15.915" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={dash} strokeLinecap="round" />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex flex-col items-center">
-                            <Icon className="w-4 h-4 text-slate-700 mb-1" />
-                            <span className="text-sm font-semibold text-slate-900">{pct}%</span>
-                          </div>
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                          {display ? display[0].toUpperCase() : 'R'}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium text-slate-700 truncate">{display}</div>
+                          <div className="text-xs text-slate-500">{r.count} visits</div>
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-slate-700">{it.key}</div>
-                        <div className="text-lg font-bold text-slate-900">{it.count}</div>
-                        <div className="text-xs text-slate-500">Compare with last period</div>
+                      <div className="text-right">
+                        <div className="font-bold text-slate-900">{pct}%</div>
+                        <div className="text-xs text-slate-500">of traffic</div>
                       </div>
                     </div>
                   );
@@ -533,118 +538,90 @@ export default function AnalyticsDashboard({ projectId }) {
               })()}
             </div>
 
-            {/* Right column - Continent Traffic Bar Chart */}
-            <div className="lg:col-span-1">
-              <h4 className="text-sm font-semibold text-slate-900 mb-6">Traffic by Continent</h4>
-              {analytics?.continents && analytics.continents.length > 0 ? (
-                <div className="w-full">
-                  {/* SVG Bar Chart */}
-                  <svg width="100%" height="280" viewBox="0 0 500 280" preserveAspectRatio="none" className="w-full" style={{ overflow: 'visible' }}>
-                    {/* Background grid lines */}
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
-                      <g key={`grid-${i}`}>
-                        <line x1="30" y1={240 - (i * 40)} x2="500" y2={240 - (i * 40)} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2,2" />
-                        <text x="25" y={243 - (i * 40)} fontSize="10" fill="#94a3b8" textAnchor="end">
-                          {Math.round((i * 5))}
-                        </text>
-                      </g>
-                    ))}
-                    
-                    {/* Y-axis */}
-                    <line x1="30" y1="10" x2="30" y2="240" stroke="#cbd5e1" strokeWidth="2" />
-                    {/* X-axis */}
-                    <line x1="30" y1="240" x2="500" y2="240" stroke="#cbd5e1" strokeWidth="2" />
-
-                    {/* Bars */}
-                    {(() => {
-                      const maxPercentage = 100;
-                      const barWidth = (460 / analytics.continents.length) * 0.7;
-                      const spacing = 460 / analytics.continents.length;
-                      const colors = ['#c7b9f7', '#7dd3fc', '#86efac', '#fcd34d', '#fca5a5', '#f0a4d4'];
-                      
-                      return analytics.continents.map((continent, index) => {
-                        const barHeight = (continent.percentage / maxPercentage) * 200;
-                        const xPos = 40 + (index * spacing);
-                        const yPos = 240 - barHeight;
-                        const barColor = colors[index % colors.length];
-                        
-                        return (
-                          <g key={`bar-${index}`}>
-                            {/* Bar */}
-                            <rect
-                              x={xPos}
-                              y={yPos}
-                              width={barWidth}
-                              height={barHeight}
-                              fill={barColor}
-                              rx="3"
-                              className="transition-all hover:opacity-80 cursor-pointer"
-                              opacity="1"
-                            >
-                              <title>{`${continent.name}: ${continent.count} (${continent.percentage}%)`}</title>
-                            </rect>
-                            
-                            {/* Value label on top of bar */}
-                            {barHeight > 15 && (
-                              <text
-                                x={xPos + barWidth / 2}
-                                y={yPos - 5}
-                                fontSize="10"
-                                fontWeight="bold"
-                                fill="#1e293b"
-                                textAnchor="middle"
-                              >
-                                {continent.percentage}%
-                              </text>
-                            )}
-                            
-                            {/* Continent label below */}
-                            <text
-                              x={xPos + barWidth / 2}
-                              y="260"
-                              fontSize="11"
-                              fill="#475569"
-                              textAnchor="middle"
-                              fontWeight="500"
-                            >
-                              {continent.name.split(' ')[0]}
-                            </text>
-                          </g>
-                        );
-                      });
-                    })()}
-
-                    {/* Y-axis label */}
-                    <text x="12" y="125" fontSize="11" fill="#94a3b8" textAnchor="middle" transform="rotate(-90, 12, 125)">
-                      %
-                    </text>
-                  </svg>
-
-                  {/* Legend - Below Chart */}
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    {analytics.continents.map((continent, index) => {
-                      const colors = ['#c7b9f7', '#7dd3fc', '#86efac', '#fcd34d', '#fca5a5', '#f0a4d4'];
-                      const barColor = colors[index % colors.length];
+            {/* Column 2 - Device Type Distribution */}
+            <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm h-full">
+              <h4 className="text-sm font-semibold text-slate-900">Device Types</h4>
+              {(() => {
+                const hasDevices = analytics?.devices && Object.keys(analytics.devices).length > 0;
+                const demoDevices = { Desktop: 60, Mobile: 35, Tablet: 4, Bot: 1 };
+                const devices = hasDevices ? analytics.devices : demoDevices;
+                const entries = Object.entries(devices);
+                const totalDevices = entries.reduce((s, [, v]) => s + v, 0) || 1;
+                return (
+                  <div className="space-y-3">
+                    {entries.map(([name, count], i) => {
+                      const percent = totalDevices > 0 ? Math.round((count / totalDevices) * 100) : 0;
+                      const colors = ['bg-sky-400','bg-emerald-400','bg-amber-300','bg-stone-400'];
                       return (
-                        <div key={index} className="flex items-center gap-2 text-xs">
-                          <div
-                            className="w-3 h-3 rounded"
-                            style={{ backgroundColor: barColor }}
-                          />
-                          <span className="text-slate-700">
-                            {continent.name} <span className="text-slate-500 font-medium">({continent.count})</span>
-                          </span>
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-600 font-medium">{name}</span>
+                            <span className="font-semibold text-slate-900">{percent}%</span>
+                          </div>
+                          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div className={`${colors[i % colors.length]} h-full rounded-full`} style={{ width: `${percent}%` }} />
+                          </div>
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              ) : (
-                <p className="text-slate-500 text-center py-8 text-sm">No continent data available</p>
-              )}
+                );
+              })()}
+            </div>
+
+            {/* Column 3 - Traffic by Country */}
+            <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm h-full">
+              <h4 className="text-sm font-semibold text-slate-900">Traffic by Country</h4>
+              {(() => {
+                const hasCountries = analytics?.countries && analytics.countries.length > 0;
+                const demoCountries = [
+                  { iso: 'US', count: 60, percentage: 60 },
+                  { iso: 'IN', count: 20, percentage: 20 },
+                  { iso: 'GB', count: 10, percentage: 10 },
+                  { iso: 'DE', count: 5, percentage: 5 },
+                  { iso: 'CA', count: 5, percentage: 5 }
+                ];
+                const countries = hasCountries ? analytics.countries : demoCountries;
+
+                return (
+                  <div className="w-full">
+                    <svg width="100%" height="220" viewBox="0 0 400 220" preserveAspectRatio="none" className="w-full" style={{ overflow: 'visible' }}>
+                      {[0,1,2,3,4].map(i => (
+                        <line key={i} x1="10" y1={180 - i*36} x2="390" y2={180 - i*36} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2,2" />
+                      ))}
+
+                      {(() => {
+                        const max = Math.max(...countries.map(c => c.count), 1);
+                        const barWidth = 320 / countries.length;
+                        return countries.map((c, idx) => {
+                          const h = (c.count / max) * 140;
+                          const x = 30 + idx * barWidth;
+                          const y = 180 - h;
+                          const color = ['#7dd3fc','#86efac','#fcd34d','#fca5a5','#c7b9f7'][idx % 5];
+                          return (
+                            <g key={idx}>
+                              <rect x={x} y={y} width={barWidth*0.6} height={h} rx="3" fill={color} />
+                              <text x={x + (barWidth*0.3)} y={y - 6} fontSize="10" fill="#0f172a" textAnchor="middle">{c.percentage ?? Math.round((c.count / (countries.reduce((s, it) => s + it.count, 0) || 1)) * 100)}%</text>
+                              <text x={x + (barWidth*0.3)} y={195} fontSize="10" fill="#475569" textAnchor="middle">{c.iso}</text>
+                            </g>
+                          );
+                        });
+                      })()}
+                    </svg>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-700">
+                      {countries.map((c, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded" style={{ backgroundColor: ['#7dd3fc','#86efac','#fcd34d','#fca5a5','#c7b9f7'][i % 5] }} />
+                          <div>{c.iso} <span className="text-slate-500">({c.count})</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
-        )}
       </Card>
     </div>
   );
