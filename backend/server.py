@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, Request
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -247,7 +247,7 @@ async def delete_project(project_id: str, user: dict = Depends(verify_token)):
 # ==================== TRACKING ROUTES ====================
 
 @api_router.post("/track")
-async def track_event(event_input: EventCreate):
+async def track_event(event_input: EventCreate, request: Request):
     # Verify tracking code
     project = await db.projects.find_one(
         {"id": event_input.project_id, "tracking_code": event_input.tracking_code},
@@ -261,16 +261,36 @@ async def track_event(event_input: EventCreate):
     if privacy_settings.get('require_consent', True) and not event_input.consent_given:
         return {"status": "consent_required"}
     
+    # Determine client IP: prefer provided ip_address, else try headers / connection
+    client_ip = None
+    if event_input.ip_address:
+        client_ip = event_input.ip_address
+    else:
+        # X-Forwarded-For may contain a comma-separated list; take the first one
+        xff = request.headers.get('x-forwarded-for') or request.headers.get('X-Forwarded-For')
+        if xff:
+            client_ip = xff.split(',')[0].strip()
+        else:
+            # request.client may be None in some ASGI setups but generally present
+            try:
+                client_ip = request.client.host
+            except Exception:
+                client_ip = None
+
     # Anonymize IP if enabled
     ip_hash = None
-    if event_input.ip_address and privacy_settings.get('anonymize_ip', True):
-        ip_hash = hashlib.sha256(event_input.ip_address.encode()).hexdigest()[:16]
+    if client_ip and privacy_settings.get('anonymize_ip', True):
+        try:
+            ip_hash = hashlib.sha256(client_ip.encode()).hexdigest()[:16]
+        except Exception:
+            ip_hash = None
+
     # GeoIP lookup (country / continent) when available
     country_iso = None
     continent_name = None
-    if event_input.ip_address and geoip_reader:
+    if client_ip and geoip_reader:
         try:
-            rec = geoip_reader.country(event_input.ip_address)
+            rec = geoip_reader.country(client_ip)
             if rec and rec.country:
                 country_iso = rec.country.iso_code
             if rec and rec.continent:
@@ -280,10 +300,13 @@ async def track_event(event_input: EventCreate):
             continent_name = None
     
     # Fallback: Assign continent based on IP hash if GeoIP unavailable
-    if not continent_name and event_input.ip_address:
+    if not continent_name and client_ip:
         continents_fallback = ['North America', 'Europe', 'Asia', 'South America', 'Africa', 'Oceania']
-        ip_int = sum(int(x) for x in event_input.ip_address.split('.')) if '.' in event_input.ip_address else 0
-        continent_name = continents_fallback[ip_int % len(continents_fallback)]
+        try:
+            ip_int = sum(int(x) for x in client_ip.split('.')) if '.' in client_ip else 0
+            continent_name = continents_fallback[ip_int % len(continents_fallback)]
+        except Exception:
+            continent_name = None
     
     event = Event(
         project_id=event_input.project_id,
