@@ -29,14 +29,22 @@ mongo_url = os.environ['MONGODB_URI']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Initialize logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Initialize GeoIP reader if DB available
 GEOIP_DB = os.environ.get('GEOIP_DB_PATH', str(ROOT_DIR / 'GeoLite2-Country.mmdb'))
 geoip_reader = None
 if 'geoip2' in globals() and geoip2 is not None:
     try:
         geoip_reader = geoip2.database.Reader(GEOIP_DB)
-    except Exception:
+        logger.info(f"✓ GeoIP reader initialized. DB: {GEOIP_DB}")
+    except Exception as e:
+        logger.error(f"✗ GeoIP init failed. DB: {GEOIP_DB}. Error: {e}")
         geoip_reader = None
+else:
+    logger.warning("⚠ geoip2 not imported or available")
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
@@ -277,6 +285,8 @@ async def track_event(event_input: EventCreate, request: Request):
             except Exception:
                 client_ip = None
 
+    logger.info(f"[TRACK] Detected client_ip: {client_ip}, geoip_reader: {geoip_reader is not None}")
+
     # Anonymize IP if enabled
     ip_hash = None
     if client_ip and privacy_settings.get('anonymize_ip', True):
@@ -295,9 +305,15 @@ async def track_event(event_input: EventCreate, request: Request):
                 country_iso = rec.country.iso_code
             if rec and rec.continent:
                 continent_name = rec.continent.name
-        except Exception:
+            logger.info(f"[TRACK] ✓ GeoIP success: country={country_iso}, continent={continent_name}")
+        except Exception as e:
+            logger.error(f"[TRACK] ✗ GeoIP lookup failed for {client_ip}: {e}")
             country_iso = None
             continent_name = None
+    elif client_ip and not geoip_reader:
+        logger.warning(f"[TRACK] ⚠ No geoip_reader available for {client_ip}")
+    elif not client_ip:
+        logger.warning(f"[TRACK] ⚠ No client_ip detected")
     
     # Fallback: Assign continent based on IP hash if GeoIP unavailable
     if not continent_name and client_ip:
