@@ -130,8 +130,13 @@ export default function AuthPage({ onLogin }) {
               data-testid="submit-auth-button"
               type="submit"
               disabled={loading}
-              className="w-full bg-[#b4e717] text-[#1C4B42] py-3 rounded-lg font-medium hover:bg-[#b4e718] hover:text-[#1C4B42]"
+              className="w-full bg-[#b4e717] text-[#1C4B42] py-3 rounded-lg font-medium custom-dashboard-btn"
             >
+              // Custom style for dashboard button hover
+              // This can be moved to a CSS file if preferred
+              const style = document.createElement('style');
+              style.innerHTML = `.custom-dashboard-btn:hover { background-color: #b4e718 !important; color: #1c4b42 !important; }`;
+              document.head.appendChild(style);
               {loading
                 ? "Processing..."
                 : isLogin
