@@ -132,7 +132,6 @@ export default function AuthPage({ onLogin }) {
               disabled={loading}
               className="w-full bg-[#b4e717] text-[#1C4B42] py-3 rounded-lg font-medium custom-dashboard-btn"
             >
-              document.head.appendChild(style);
               {loading
                 ? "Processing..."
                 : isLogin
