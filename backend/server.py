@@ -737,6 +737,22 @@ async def export_analytics_csv(project_id: str, days: int = 7, user: dict = Depe
         output.write(f"{browser},{count},{percentage:.2f}%\n")
     output.write("\n\n")
     
+
+    # Device Types Section
+    device_types = {}
+    for e in events:
+        if e.get('device_type'):
+            device = e['device_type']
+            device_types[device] = device_types.get(device, 0) + 1
+
+    output.write("Device Types\n")
+    output.write("Device,Count,% of Total\n")
+    total_devices = sum(device_types.values())
+    for device, count in sorted(device_types.items(), key=lambda x: x[1], reverse=True):
+        percent = (count / total_devices * 100) if total_devices > 0 else 0
+        output.write(f"{device},{count},{percent:.2f}%\n")
+    output.write("\n\n")
+
     # All Events Detail (Raw Data)
     output.write("All Events (Raw Data)\n")
     output.write("Timestamp,Event Type,Event Name,Page URL,Page Title,Referrer,Session ID\n")
@@ -748,13 +764,11 @@ async def export_analytics_csv(project_id: str, days: int = 7, user: dict = Depe
         page_title = e.get('page_title', '')
         referrer = e.get('referrer', '')
         session_id = e.get('session_id', '')
-        
         output.write(f'"{timestamp}","{event_type}","{event_name}","{page_url}","{page_title}","{referrer}","{session_id}"\n')
-    
+
     # Prepare response
     output.seek(0)
     filename = f"analytics_{project['name'].replace(' ', '_')}_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}.csv"
-    
     return StreamingResponse(
         iter([output.getvalue()]),
         media_type="text/csv",
