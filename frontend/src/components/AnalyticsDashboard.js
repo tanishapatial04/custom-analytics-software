@@ -462,7 +462,7 @@ export default function AnalyticsDashboard({ projectId }) {
       <Card className="rounded-2xl p-0">
 
         {/* Show real data when available, otherwise render demo data for all three columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start p-6">
             {/* Column 1 - Top Referrers (group common providers like Gmail, Yahoo, Outlook) */}
           <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm h-full">
               <h4 className="text-sm font-semibold text-slate-900">Top Referrers</h4>
@@ -568,8 +568,6 @@ export default function AnalyticsDashboard({ projectId }) {
                 );
               })()}
             </div>
-
-            // ...existing code...
           </div>
       </Card>
     </div>
