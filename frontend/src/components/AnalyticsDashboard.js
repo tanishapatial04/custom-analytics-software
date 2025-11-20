@@ -569,58 +569,7 @@ export default function AnalyticsDashboard({ projectId }) {
               })()}
             </div>
 
-            {/* Column 3 - Traffic by Country */}
-            <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm h-full">
-              <h4 className="text-sm font-semibold text-slate-900">Traffic by Country</h4>
-              {(() => {
-                const hasCountries = analytics?.countries && analytics.countries.length > 0;
-                const demoCountries = [
-                  { iso: 'US', count: 60, percentage: 60 },
-                  { iso: 'IN', count: 20, percentage: 20 },
-                  { iso: 'GB', count: 10, percentage: 10 },
-                  { iso: 'DE', count: 5, percentage: 5 },
-                  { iso: 'CA', count: 5, percentage: 5 }
-                ];
-                const countries = hasCountries ? analytics.countries : demoCountries;
-
-                return (
-                  <div className="w-full">
-                    <svg width="100%" height="220" viewBox="0 0 400 220" preserveAspectRatio="none" className="w-full" style={{ overflow: 'visible' }}>
-                      {[0,1,2,3,4].map(i => (
-                        <line key={i} x1="10" y1={180 - i*36} x2="390" y2={180 - i*36} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2,2" />
-                      ))}
-
-                      {(() => {
-                        const max = Math.max(...countries.map(c => c.count), 1);
-                        const barWidth = 320 / countries.length;
-                        return countries.map((c, idx) => {
-                          const h = (c.count / max) * 140;
-                          const x = 30 + idx * barWidth;
-                          const y = 180 - h;
-                          const color = ['#7dd3fc','#86efac','#fcd34d','#fca5a5','#c7b9f7'][idx % 5];
-                          return (
-                            <g key={idx}>
-                              <rect x={x} y={y} width={barWidth*0.6} height={h} rx="3" fill={color} />
-                              <text x={x + (barWidth*0.3)} y={y - 6} fontSize="10" fill="#0f172a" textAnchor="middle">{c.percentage ?? Math.round((c.count / (countries.reduce((s, it) => s + it.count, 0) || 1)) * 100)}%</text>
-                              <text x={x + (barWidth*0.3)} y={195} fontSize="10" fill="#475569" textAnchor="middle">{c.iso}</text>
-                            </g>
-                          );
-                        });
-                      })()}
-                    </svg>
-
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-700">
-                      {countries.map((c, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded" style={{ backgroundColor: ['#7dd3fc','#86efac','#fcd34d','#fca5a5','#c7b9f7'][i % 5] }} />
-                          <div>{c.iso} <span className="text-slate-500">({c.count})</span></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
+            // ...existing code...
           </div>
       </Card>
     </div>
