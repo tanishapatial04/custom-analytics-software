@@ -47,7 +47,7 @@ export default function AuthPage({ onLogin }) {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <TrendingUp className="w-10 h-10 text-purple-600" />
+            <TrendingUp className="w-10 h-10 text-[#1C4B42]" />
             <span className="text-3xl font-bold text-slate-900">SignalVista</span>
           </div>
           <p className="text-slate-600">AI-powered analytics platform</p>
@@ -130,7 +130,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="submit-auth-button"
               type="submit"
               disabled={loading}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium"
+              className="w-full bg-[#b4e717] text-[#1C4B42] py-3 rounded-lg font-medium hover:bg-[#b4e718] hover:text-[#1C4B42]"
             >
               {loading
                 ? "Processing..."
@@ -145,7 +145,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="toggle-auth-mode-button"
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-purple-600 hover:text-purple-700 font-medium"
+              className="text-[#1C4B42] hover:text-[#14503a] font-medium"
             >
               {isLogin
                 ? "Don't have an account? Sign up"
@@ -157,7 +157,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="home-redirect-button"
               type="button"
               onClick={() => (window.location.href = "/")}
-              className="text-purple-600 hover:text-purple-700 font-medium"
+              className="text-[#1C4B42] hover:text-[#14503a] font-medium"
             >
               Go to Home
             </button>

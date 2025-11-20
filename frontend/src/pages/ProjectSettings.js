@@ -129,8 +129,8 @@ export default function ProjectSettings({ user, onLogout }) {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back
             </Button>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-8 h-8 text-purple-600" />
+              <div className="flex items-center gap-2">
+              <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
               <span className="text-2xl font-bold text-slate-900">SignalVista</span>
             </div>
           </div>
@@ -224,7 +224,7 @@ export default function ProjectSettings({ user, onLogout }) {
             <Button
               data-testid="copy-tracking-code-button"
               onClick={copyToClipboard}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-[#b4e717] text-[#1C4B42] hover:bg-[#b4e718] hover:text-[#1C4B42]"
             >
               {copied ? (
                 <><CheckCircle className="w-4 h-4 mr-2" />Copied!</>
