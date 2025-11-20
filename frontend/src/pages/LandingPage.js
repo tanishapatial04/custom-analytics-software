@@ -13,7 +13,7 @@ export default function LandingPage({ isAuthenticated }) {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-8 h-8 text-purple-600" />
-            <span className="text-2xl font-bold text-slate-900">Intellica</span>
+            <span className="text-2xl font-bold text-slate-900">SignalVista</span>
           </div>
           <Button 
             data-testid="nav-cta-button"
@@ -146,11 +146,11 @@ export default function LandingPage({ isAuthenticated }) {
         <div className="max-w-6xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <TrendingUp className="w-6 h-6 text-purple-600" />
-            <span className="text-xl font-bold text-slate-900">Intellica</span>
+            <span className="text-xl font-bold text-slate-900">SignalVista</span>
           </div>
           <p className="mb-4">Privacy-first analytics with AI-powered insights</p>
           <p className="text-sm text-slate-500">
-            © 2025 Intellica Analytics. Built with FastAPI, React & MongoDB.
+            © 2025 SignalVista Analytics. Built with FastAPI, React & MongoDB.
           </p>
         </div>
       </footer>

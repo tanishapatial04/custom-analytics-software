@@ -70,7 +70,7 @@ export default function Dashboard({ user, onLogout }) {
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-8 h-8 text-purple-600" />
-              <span className="text-2xl font-bold text-slate-900">Intellica</span>
+              <span className="text-2xl font-bold text-slate-900">SignalVista</span>
             </div>
             
             {/* Project Selector */}

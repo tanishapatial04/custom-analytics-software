@@ -32,10 +32,10 @@ export default function ProjectSettings({ user, onLogout }) {
     }
   };
 
-  const trackingScript = project ? `<!-- Intellica Analytics -->
+  const trackingScript = project ? `<!-- SignalVista Analytics -->
 <script>
   (function() {
-    window.Intellica = {
+    window.SignalVista = {
       projectId: '${project.id}',
       trackingCode: '${project.tracking_code}',
       apiUrl: '${process.env.REACT_APP_BACKEND_URL}/api'
@@ -49,13 +49,13 @@ export default function ProjectSettings({ user, onLogout }) {
     }
     
     // Track function
-    window.Intellica.track = function(eventType, eventData) {
-      fetch(window.Intellica.apiUrl + '/track', {
+    window.SignalVista.track = function(eventType, eventData) {
+      fetch(window.SignalVista.apiUrl + '/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          project_id: window.Intellica.projectId,
-          tracking_code: window.Intellica.trackingCode,
+          project_id: window.SignalVista.projectId,
+          tracking_code: window.SignalVista.trackingCode,
           session_id: sessionId,
           event_type: eventType,
           page_url: window.location.href,
@@ -69,7 +69,7 @@ export default function ProjectSettings({ user, onLogout }) {
     };
     
     // Auto-track pageview
-    window.Intellica.track('pageview');
+    window.SignalVista.track('pageview');
   })();
 </script>` : '';
 
@@ -131,7 +131,7 @@ export default function ProjectSettings({ user, onLogout }) {
             </Button>
             <div className="flex items-center gap-2">
               <TrendingUp className="w-8 h-8 text-purple-600" />
-              <span className="text-2xl font-bold text-slate-900">Intellica</span>
+              <span className="text-2xl font-bold text-slate-900">SignalVista</span>
             </div>
           </div>
           <div className="text-slate-700 font-medium">Settings: {project?.name}</div>

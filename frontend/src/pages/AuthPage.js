@@ -48,7 +48,7 @@ export default function AuthPage({ onLogin }) {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <TrendingUp className="w-10 h-10 text-purple-600" />
-            <span className="text-3xl font-bold text-slate-900">Intellica</span>
+            <span className="text-3xl font-bold text-slate-900">SignalVista</span>
           </div>
           <p className="text-slate-600">AI-powered analytics platform</p>
         </div>
@@ -65,7 +65,7 @@ export default function AuthPage({ onLogin }) {
             <p className="text-slate-600">
               {isLogin
                 ? "Sign in to your account"
-                : "Get started with Intellica"}
+                : "Get started with SignalVista"}
             </p>
           </div>
 
