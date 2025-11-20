@@ -130,7 +130,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="submit-auth-button"
               type="submit"
               disabled={loading}
-              className="w-full bg-[#b4e717] text-[#1C4B42] py-3 rounded-lg font-medium custom-dashboard-btn"
+              className="w-full bg-[#b4e717] text-[#1C4B42] hover:bg-[#b4e717] text-[#1C4B42] py-3 rounded-lg font-medium custom-dashboard-btn"
             >
               {loading
                 ? "Processing..."
@@ -145,7 +145,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="toggle-auth-mode-button"
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-[#1C4B42] hover:text-[#b4e717] font-medium"
+              className="text-[#1C4B42] hover:text-[#1C4B42] font-medium"
             >
               {isLogin
                 ? "Don't have an account? Sign up"
