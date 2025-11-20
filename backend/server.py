@@ -219,6 +219,31 @@ async def get_project(project_id: str, user: dict = Depends(verify_token)):
         project['created_at'] = datetime.fromisoformat(project['created_at'])
     return project
 
+
+@api_router.delete("/projects/{project_id}")
+async def delete_project(project_id: str, user: dict = Depends(verify_token)):
+    """
+    Delete a project and its associated data (events). Requires tenant ownership.
+    """
+    # Verify project exists and belongs to tenant
+    project = await db.projects.find_one({"id": project_id, "tenant_id": user['tenant_id']}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Delete project document
+    result = await db.projects.delete_one({"id": project_id, "tenant_id": user['tenant_id']})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to delete project")
+
+    # Delete related events and other associated data if any
+    try:
+        await db.events.delete_many({"project_id": project_id})
+    except Exception:
+        # Log and continue; don't fail the request if cleanup partially fails
+        pass
+
+    return {"status": "deleted", "project_id": project_id}
+
 # ==================== TRACKING ROUTES ====================
 
 @api_router.post("/track")
