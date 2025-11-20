@@ -67,7 +67,7 @@ export default function AnalyticsDashboard({ projectId }) {
   if (loading) {
     return (
       <div className="text-center py-20">
-        <Activity className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+        <Activity className="w-12 h-12 text-[#1C4B42] animate-spin mx-auto mb-4" />
         <p className="text-slate-600">Loading analytics...</p>
       </div>
     );
@@ -122,7 +122,7 @@ export default function AnalyticsDashboard({ projectId }) {
             data-testid="date-range-selector"
             value={dateRange}
             onChange={(e) => setDateRange(Number(e.target.value))}
-            className="px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#1C4B42]"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -131,7 +131,7 @@ export default function AnalyticsDashboard({ projectId }) {
           <Button
             data-testid="export-csv-button"
             onClick={handleExportCSV}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2"
+            className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-lg font-medium flex items-center gap-2 hover:bg-[#b4e718] hover:text-[#1C4B42]"
           >
             <Download className="w-4 h-4" />
             Export CSV
@@ -201,8 +201,8 @@ export default function AnalyticsDashboard({ projectId }) {
               </div>
               <p className="text-xs text-slate-500 mt-2">Average {avgEventsPerSession} events per session</p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-              <Activity className="w-6 h-6 text-purple-600" />
+            <div className="w-12 h-12 bg-[#f8fbe8] rounded-xl flex items-center justify-center">
+              <Activity className="w-6 h-6 text-[#1C4B42]" />
             </div>
           </div>
         </Card>
@@ -327,7 +327,7 @@ export default function AnalyticsDashboard({ projectId }) {
                   cy="18"
                   r="15.915"
                   fill="none"
-                  stroke="#7c3aed"
+                  stroke="#1C4B42"
                   strokeWidth="2"
                   strokeDasharray={`${pageviewsPercent} ${100 - pageviewsPercent}`}
                 />
@@ -354,7 +354,7 @@ export default function AnalyticsDashboard({ projectId }) {
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-600">{pageviewsPercent}%</p>
+                  <p className="text-2xl font-bold text-[#1C4B42]">{pageviewsPercent}%</p>
                   <p className="text-xs text-slate-500">Pages</p>
                 </div>
               </div>
@@ -362,7 +362,7 @@ export default function AnalyticsDashboard({ projectId }) {
             <div className="space-y-2 w-full text-sm">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 bg-purple-600 rounded-full"></span>
+                  <span className="inline-block w-2 h-2 bg-[#b4e717] rounded-full"></span>
                   <span className="text-slate-600">Pageviews</span>
                 </div>
                 <span className="font-medium text-slate-900">{pageviewsPercent}%</span>
@@ -400,7 +400,7 @@ export default function AnalyticsDashboard({ projectId }) {
                 placeholder="Search pages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
+                className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C4B42] w-full"
               />
             </div>
           </div>
@@ -409,7 +409,7 @@ export default function AnalyticsDashboard({ projectId }) {
               {filteredPages.map((page, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    <div className="w-8 h-8 bg-[#b4e717] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {index + 1}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -444,7 +444,7 @@ export default function AnalyticsDashboard({ projectId }) {
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-purple-500 to-purple-600 h-full rounded-full transition-all"
+                        className="bg-[#b4e717] h-full rounded-full transition-all"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
@@ -520,7 +520,7 @@ export default function AnalyticsDashboard({ projectId }) {
                   return (
                     <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        <div className="w-10 h-10 bg-[#b4e717] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                           {display ? display[0].toUpperCase() : 'R'}
                         </div>
                         <div className="min-w-0">

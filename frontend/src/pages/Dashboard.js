@@ -55,7 +55,7 @@ export default function Dashboard({ user, onLogout }) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <Activity className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+          <Activity className="w-12 h-12 text-[#1C4B42] animate-spin mx-auto mb-4" />
           <p className="text-slate-600">Loading...</p>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function Dashboard({ user, onLogout }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-8 h-8 text-purple-600" />
+              <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
               <span className="text-2xl font-bold text-slate-900">SignalVista</span>
             </div>
             
@@ -96,13 +96,13 @@ export default function Dashboard({ user, onLogout }) {
               data-testid="create-project-button"
               onClick={() => setShowCreateProject(true)}
               variant="outline"
-              className="border-purple-600 text-purple-600 hover:bg-purple-50"
+              className="border-[#b4e717] text-[#1C4B42] hover:bg-[#f8fbe8]"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Project
             </Button>
             <div className="flex items-center gap-3 px-4 py-2 bg-slate-100 rounded-lg">
-              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="w-8 h-8 bg-[#b4e717] rounded-full flex items-center justify-center text-[#1C4B42] font-semibold">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
               <span className="text-slate-700 font-medium">{user?.name}</span>
@@ -125,7 +125,7 @@ export default function Dashboard({ user, onLogout }) {
           // Empty State
           <div className="max-w-2xl mx-auto text-center py-20" data-testid="empty-state">
             <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <BarChart3 className="w-10 h-10 text-purple-600" />
+              <BarChart3 className="w-10 h-10 text-[#1C4B42]" />
             </div>
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Create your first project</h2>
             <p className="text-lg text-slate-600 mb-8">
@@ -134,7 +134,7 @@ export default function Dashboard({ user, onLogout }) {
             <Button
               data-testid="create-first-project-button"
               onClick={() => setShowCreateProject(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full"
+              className="bg-[#b4e717] text-[#1C4B42] px-8 py-6 text-lg rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
             >
               <Plus className="w-5 h-5 mr-2" />
               Create Project
@@ -149,7 +149,7 @@ export default function Dashboard({ user, onLogout }) {
                 onClick={() => setShowNLQ(false)}
                 className={`flex-1 py-6 rounded-xl font-semibold transition-all ${
                   !showNLQ 
-                    ? 'bg-purple-600 text-white shadow-lg' 
+                    ? 'bg-[#b4e717] text-[#1C4B42] shadow-lg' 
                     : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -161,7 +161,7 @@ export default function Dashboard({ user, onLogout }) {
                 onClick={() => setShowNLQ(true)}
                 className={`flex-1 py-6 rounded-xl font-semibold transition-all ${
                   showNLQ 
-                    ? 'bg-purple-600 text-white shadow-lg' 
+                    ? 'bg-[#b4e717] text-[#1C4B42] shadow-lg' 
                     : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -233,7 +233,7 @@ export default function Dashboard({ user, onLogout }) {
                 <Button
                   data-testid="confirm-create-project-button"
                   type="submit"
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                  className="flex-1 bg-[#b4e717] text-[#1C4B42] hover:bg-[#b4e718] hover:text-[#1C4B42]"
                 >
                   Create Project
                 </Button>
