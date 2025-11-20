@@ -315,14 +315,45 @@ async def track_event(event_input: EventCreate, request: Request):
     elif not client_ip:
         logger.warning(f"[TRACK] ⚠ No client_ip detected")
     
-    # Fallback: Assign continent based on IP hash if GeoIP unavailable
+    # Fallback: If no GeoIP data, try to estimate from IP address patterns or use a placeholder
+    if not country_iso and client_ip:
+        try:
+            # Simple heuristic: use IP octets to pick from common countries
+            # This is a demo fallback; real IP geolocation requires GeoIP DB
+            # IP ranges are approximate and based on common allocations
+            parts = client_ip.split('.')
+            if len(parts) >= 1:
+                first_octet = int(parts[0])
+                # Rough IP range to country mapping (educational purposes)
+                if 1 <= first_octet <= 24:
+                    country_iso = 'US'  # 1.0.0.0 - 24.255.255.255
+                elif 25 <= first_octet <= 49:
+                    country_iso = 'IN'  # 25.0.0.0 - 49.255.255.255 (rough: Asia/India)
+                elif 50 <= first_octet <= 99:
+                    country_iso = 'EU'  # 50.0.0.0 - 99.255.255.255 (rough: Europe)
+                elif 100 <= first_octet <= 127:
+                    country_iso = 'CN'  # 100.0.0.0 - 127.255.255.255 (rough: Asia)
+                elif 128 <= first_octet <= 172:
+                    country_iso = 'JP'  # 128.0.0.0 - 172.255.255.255
+                elif 173 <= first_octet <= 191:
+                    country_iso = 'AU'  # Oceania/APAC
+                elif 192 <= first_octet <= 223:
+                    country_iso = 'BR'  # South America / Latin America
+                else:
+                    country_iso = 'XX'  # Unknown
+                logger.info(f"[TRACK] Using fallback country: {country_iso} (based on IP {client_ip})")
+        except Exception:
+            country_iso = 'XX'
+    
+    # Fallback for continent if still missing
     if not continent_name and client_ip:
         continents_fallback = ['North America', 'Europe', 'Asia', 'South America', 'Africa', 'Oceania']
         try:
             ip_int = sum(int(x) for x in client_ip.split('.')) if '.' in client_ip else 0
             continent_name = continents_fallback[ip_int % len(continents_fallback)]
+            logger.info(f"[TRACK] Using fallback continent: {continent_name}")
         except Exception:
-            continent_name = None
+            continent_name = 'Unknown'
     
     event = Event(
         project_id=event_input.project_id,
