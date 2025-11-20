@@ -146,7 +146,7 @@ export default function AuthPage({ onLogin }) {
               data-testid="toggle-auth-mode-button"
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-[#1C4B42] hover:text-[#14503a] font-medium"
+              className="text-[#1C4B42] hover:text-[#b4e717] font-medium"
             >
               {isLogin
                 ? "Don't have an account? Sign up"
