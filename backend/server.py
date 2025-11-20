@@ -355,6 +355,14 @@ async def track_event(event_input: EventCreate, request: Request):
         except Exception:
             continent_name = 'Unknown'
     
+    # Debug log: confirm what country/continent will be saved
+    logger.info(f"[TRACK] Final values to save: country={country_iso}, continent={continent_name}")
+    
+    # Ensure country_iso is never None (fallback to XX if still missing)
+    if not country_iso:
+        country_iso = 'XX'
+        logger.warning(f"[TRACK] ⚠ country_iso is None, setting to 'XX' as fallback")
+    
     event = Event(
         project_id=event_input.project_id,
         session_id=event_input.session_id,
