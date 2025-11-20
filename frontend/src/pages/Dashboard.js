@@ -160,9 +160,9 @@ export default function Dashboard({ user, onLogout }) {
                 data-testid="ask-nlq-button"
                 onClick={() => setShowNLQ(true)}
                 className={`flex-1 py-6 rounded-xl font-semibold transition-all ${
-                  showNLQ 
-                    ? 'bg-[#b4e717] text-[#1C4B42] shadow-lg' 
-                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+                  showNLQ
+                    ? 'bg-[#b4e717] text-[#1C4B42] shadow-lg hover:bg-[#b4e718] hover:text-[#1C4B42]'
+                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-[#b4e718] hover:text-[#1C4B42]'
                 }`}
               >
                 <MessageSquare className="w-5 h-5 mr-2" />
