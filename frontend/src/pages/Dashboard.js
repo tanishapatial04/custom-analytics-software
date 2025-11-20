@@ -147,7 +147,11 @@ export default function Dashboard({ user, onLogout }) {
               <Button
                 data-testid="view-analytics-button"
                 onClick={() => setShowNLQ(false)}
-                className={`flex-1 py-6 rounded-xl font-semibold transition-all bg-[#b4e717] text-[#1C4B42] shadow-lg hover:bg-[#b4e718] hover:text-[#1C4B42]`}
+                className={`flex-1 py-6 rounded-xl font-semibold transition-all ${
+                  !showNLQ
+                    ? 'bg-[#b4e717] text-[#1C4B42] shadow-lg hover:bg-[#b4e718] hover:text-[#1C4B42]'
+                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-[#b4e718] hover:text-[#1C4B42]'
+                }`}
               >
                 <BarChart3 className="w-5 h-5 mr-2" />
                 Analytics Dashboard
