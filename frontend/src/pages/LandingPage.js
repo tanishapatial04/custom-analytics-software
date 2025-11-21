@@ -148,9 +148,9 @@ export default function LandingPage({ isAuthenticated }) {
             <TrendingUp className="w-6 h-6 text-[#1C4B42]" />
             <span className="text-xl font-bold text-slate-900">SignalVista</span>
           </div>
-          <p className="mb-4">Privacy-first analytics with AI-powered insights</p>
+          <p className="mb-4">Privacy-first analytics with real-time insights</p>
           <p className="text-sm text-slate-500">
-            © 2025 SignalVista Analytics. Built with FastAPI, React & MongoDB.
+            © 2025 SignalVista Analytics. Crafted with FastAPI, React & MongoDB.
           </p>
         </div>
       </footer>
