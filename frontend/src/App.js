@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import AuthPage from './pages/AuthPage';
 import ProjectSettings from './pages/ProjectSettings';
+import LearnMore from './pages/LearnMore';
 import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -65,6 +66,7 @@ function App() {
             path="/projects/:projectId/settings" 
             element={token ? <ProjectSettings user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} 
           />
+          <Route path="/learn-more" element={<LearnMore />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" />

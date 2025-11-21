@@ -53,6 +53,7 @@ export default function LandingPage({ isAuthenticated }) {
               data-testid="hero-learn-more-button"
               variant="outline" 
               size="lg"
+              onClick={() => navigate('/learn-more')}
               className="border-2 border-[#b4e717] text-[#1C4B42] hover:bg-[#f8fbe8] px-8 py-6 text-lg rounded-full"
             >
               Learn More
