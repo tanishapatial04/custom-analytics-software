@@ -116,21 +116,7 @@ export default function LearnMore() {
             </div>
           </div>
         </section>
-
-        <section className="py-16 px-6">
-          <div className="max-w-6xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Deep integrations</h2>
-            <p className="text-slate-600 mb-8">Connect your stack — export data, send alerts, or integrate with BI tools to keep your workflows running.</p>
-            {/* Buttons removed per request - kept copy only */}
-          </div>
-        </section>
       </main>
-
-      <footer className="py-12 px-6 bg-white text-slate-700 border-t">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-sm text-slate-500">Questions? Contact sales@signalvista.example</p>
-        </div>
-      </footer>
     </div>
   );
 }
