@@ -10,18 +10,27 @@ export default function LandingPage({ isAuthenticated }) {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-lg z-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
             <span className="text-2xl font-bold text-slate-900">SignalVista</span>
           </div>
-          <Button 
-            data-testid="nav-cta-button"
-            onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth')}
-            className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
-          >
-            {isAuthenticated ? 'Dashboard' : 'Get Started'}
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/pricing')}
+              className="text-[#1C4B42] hover:bg-transparent"
+            >
+              Pricing
+            </Button>
+            <Button 
+              data-testid="nav-cta-button"
+              onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth')}
+              className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
+            >
+              {isAuthenticated ? 'Dashboard' : 'Get Started'}
+            </Button>
+          </div>
         </div>
       </nav>
 
