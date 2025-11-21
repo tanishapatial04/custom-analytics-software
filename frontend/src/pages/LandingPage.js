@@ -15,22 +15,13 @@ export default function LandingPage({ isAuthenticated }) {
             <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
             <span className="text-2xl font-bold text-slate-900">SignalVista</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/pricing')}
-              className="text-[#1C4B42] hover:bg-transparent"
-            >
-              Pricing
-            </Button>
-            <Button 
-              data-testid="nav-cta-button"
-              onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth')}
-              className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
-            >
-              {isAuthenticated ? 'Dashboard' : 'Get Started'}
-            </Button>
-          </div>
+          <Button 
+            data-testid="nav-cta-button"
+            onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth')}
+            className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
+          >
+            {isAuthenticated ? 'Dashboard' : 'Get Started'}
+          </Button>
         </div>
       </nav>
 
