@@ -66,7 +66,12 @@ export default function LearnMore() {
 
             {/* Right: Dashboard image / mockup */}
             <div className="flex justify-center lg:justify-end">
-              <img src="/what-you-get-hero.png" alt="Dashboard Image" className="max-w-full rounded-md shadow" />
+              <img
+                src="/what-you-get-hero.png"
+                alt="Dashboard Image"
+                className="max-w-full rounded-md"
+                style={{ boxShadow: '0 10px 20px rgb(180 231 23 / 18%), 0 6px 6px rgb(19 105 97 / 25%)' }}
+              />
             </div>
           </div>
         </section>
