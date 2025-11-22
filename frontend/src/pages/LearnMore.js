@@ -101,7 +101,7 @@ export default function LearnMore() {
 
         {/* Secondary content sections */}
         <section className="py-16 px-6 bg-gray-50">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+          <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
             <div className="p-6 bg-white rounded-2xl border">
               <h3 className="text-xl font-semibold mb-2">Actionable Insights</h3>
               <p className="text-slate-600">Automated highlights surface anomalies and suggested actions so your team spends less time hunting and more time shipping.</p>
