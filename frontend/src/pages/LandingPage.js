@@ -10,24 +10,34 @@ export default function LandingPage({ isAuthenticated }) {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-lg z-50 border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
-            <span className="text-2xl font-bold text-slate-900">SignalVista</span>
+        <div className="w-[90%] mx-auto px-6 py-4 flex items-center justify-between relative">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
+              <span className="text-2xl font-bold text-slate-900">SignalVista</span>
+            </div>
           </div>
-          <Button 
-            data-testid="nav-cta-button"
-            onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth')}
-            className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
-          >
-            {isAuthenticated ? 'Dashboard' : 'Get Started'}
-          </Button>
+
+          <div className="absolute left-1/2 transform -translate-x-1/2 hidden sm:flex items-center gap-6">
+            <button onClick={() => navigate('/')} className="text-slate-700 hover:text-slate-900">Home</button>
+            <button onClick={() => navigate('/learn-more')} className="text-slate-700 hover:text-slate-900">Learn More</button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Button 
+              data-testid="nav-cta-button"
+              onClick={() => navigate(localStorage.getItem('token') ? '/dashboard' : '/auth')}
+              className="bg-[#b4e717] text-[#1C4B42] px-6 py-2 rounded-full hover:bg-[#b4e718] hover:text-[#1C4B42]"
+            >
+              {localStorage.getItem('token') ? 'Dashboard' : 'Get Started'}
+            </Button>
+          </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="w-[90%] mx-auto text-center">
           <div className="inline-block mb-6 px-4 py-2 bg-white text-[#1C4B42] rounded-full text-sm font-medium border border-[#1C4B42]">
             Privacy-First Analytics Platform
           </div>
@@ -36,9 +46,8 @@ export default function LandingPage({ isAuthenticated }) {
             <br />
             <span className="bg-clip-text text-[#1C4B42] font-semibold">Natural Language</span>
           </h1>
-          <p className="text-lg sm:text-xl text-slate-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Ask questions about your data in plain English. Get instant insights powered by AI. 
-            Privacy-first tracking that respects your users.
+          <p className="text-lg sm:text-l text-slate-600 mb-12 mx-auto leading-relaxed">
+            SignalVista captures and processes anonymized event data to surface practical insights for product and marketing teams. The platform tracks pageviews, events, and sessions using a lightweight collector, builds time-series aggregates and cohorts, and indexes semantic summaries so queries return clear visualizations. With natural-language querying, teams ask plain-English questions and receive charts, trend analysis, and exportable datasets without manual SQL. Built-in privacy controls anonymize user identifiers and respect consent settings, while real-time processing ensures dashboards reflect recent activity. Export options and integrations let you push metrics to BI tools or download CSVs for analysis. SignalVista is designed for performance and clarity: intuitive visualizations, shareable reports, and actionable alerts help teams prioritize improvements and measure impact quickly.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
@@ -64,7 +73,7 @@ export default function LandingPage({ isAuthenticated }) {
 
       {/* Features Section */}
       <section className="py-20 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
+        <div className="w-[90%] mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
               Everything you need to understand your users
@@ -124,7 +133,7 @@ export default function LandingPage({ isAuthenticated }) {
 
       {/* CTA Section */}
       <section className="py-20 px-6 bg-[#1C4B42]">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="w-[90%] mx-auto text-center max-w-4xl">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
             Ready to unlock AI-powered insights?
           </h2>
