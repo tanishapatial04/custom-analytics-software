@@ -66,35 +66,7 @@ export default function LearnMore() {
 
             {/* Right: Dashboard image / mockup */}
             <div className="flex justify-center lg:justify-end">
-              <div className="w-full max-w-md shadow-xl rounded-2xl overflow-hidden border">
-                <div className="bg-gradient-to-br from-[#0f766e] to-[#1C4B42] p-4 text-white">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-white/20 rounded-lg"></div>
-                    <div className="text-sm">SignalVista</div>
-                  </div>
-                  <div className="rounded-md bg-white/10 p-3">
-                    <div className="h-32 bg-white/20 rounded-md mb-3"></div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="h-12 bg-white/10 rounded"></div>
-                      <div className="h-12 bg-white/10 rounded"></div>
-                      <div className="h-12 bg-white/10 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 bg-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <div className="text-sm text-slate-500">Active users</div>
-                      <div className="text-2xl font-bold text-slate-900">12.4k</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-slate-500">Conversion</div>
-                      <div className="text-2xl font-bold text-slate-900">4.2%</div>
-                    </div>
-                  </div>
-                  <div className="h-28 bg-slate-100 rounded" />
-                </div>
-              </div>
+              <img src="/what-you-get-hero.png" alt="Dashboard Image" className="max-w-full rounded-md shadow" />
             </div>
           </div>
         </section>
