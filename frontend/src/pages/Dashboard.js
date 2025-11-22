@@ -65,56 +65,60 @@ export default function Dashboard({ user, onLogout }) {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top Navigation */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
-              <span className="text-2xl font-bold text-slate-900">SignalVista</span>
-            </div>
-            
-            {/* Project Selector */}
-            {projects.length > 0 && (
-              <select
-                data-testid="project-selector"
-                value={selectedProject?.id || ''}
-                onChange={(e) => {
-                  const project = projects.find(p => p.id === e.target.value);
-                  setSelectedProject(project);
-                }}
-                className="px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                {projects.map(project => (
-                  <option key={project.id} value={project.id}>{project.name}</option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button
-              data-testid="create-project-button"
-              onClick={() => setShowCreateProject(true)}
-              variant="outline"
-              className="border-[#b4e717] text-[#1C4B42] hover:bg-[#f8fbe8]"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Project
-            </Button>
-            <div className="flex items-center gap-3 px-4 py-2 bg-slate-100 rounded-lg">
-              <div className="w-8 h-8 bg-[#b4e717] rounded-full flex items-center justify-center text-[#1C4B42] font-semibold">
-                {user?.name?.charAt(0).toUpperCase()}
+      <nav className="bg-white border-b border-slate-200">
+        <div className="w-[90%] mx-auto px-6 py-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-8 h-8 text-[#1C4B42]" />
+                <span className="text-2xl font-bold text-slate-900">SignalVista</span>
               </div>
-              <span className="text-slate-700 font-medium">{user?.name}</span>
             </div>
-            <Button
-              data-testid="logout-button"
-              onClick={onLogout}
-              variant="ghost"
-              className="text-slate-600 hover:text-slate-900"
-            >
-              <LogOut className="w-5 h-5" />
-            </Button>
+
+            {/* Project Selector (full-width on small screens) */}
+            {projects.length > 0 && (
+              <div className="w-full sm:w-auto">
+                <select
+                  data-testid="project-selector"
+                  value={selectedProject?.id || ''}
+                  onChange={(e) => {
+                    const project = projects.find(p => p.id === e.target.value);
+                    setSelectedProject(project);
+                  }}
+                  className="w-full sm:w-auto px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  {projects.map(project => (
+                    <option key={project.id} value={project.id}>{project.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4">
+              <Button
+                data-testid="create-project-button"
+                onClick={() => setShowCreateProject(true)}
+                variant="outline"
+                className="border-[#b4e717] text-[#1C4B42] hover:bg-[#f8fbe8]"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Project
+              </Button>
+              <div className="flex items-center gap-3 px-4 py-2 bg-slate-100 rounded-lg">
+                <div className="w-8 h-8 bg-[#b4e717] rounded-full flex items-center justify-center text-[#1C4B42] font-semibold">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-slate-700 font-medium">{user?.name}</span>
+              </div>
+              <Button
+                data-testid="logout-button"
+                onClick={onLogout}
+                variant="ghost"
+                className="text-slate-600 hover:text-slate-900"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
