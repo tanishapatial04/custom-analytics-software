@@ -41,10 +41,10 @@ export default function LearnMore() {
           <div id="what-you-get" className="w-[90%] mx-auto grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-block mb-4 px-3 py-1 bg-[#e8f8f0] text-[#1C4B42] rounded-full text-sm font-medium">What you'll get</div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">A powerful, privacy-first analytics dashboard</h1>
-              <p className="text-lg text-slate-600 mb-6">SignalVista collects anonymized interaction events and transforms them into clear metrics and visualizations that inform product and marketing decisions. The platform aggregates events into sessions, computes retention and cohort metrics, and generates visual explorations like funnels and time-series charts. Natural-language search surfaces the most relevant visual answers for everyday questions, while export and integration options enable sharing with BI tools. Strong privacy defaults anonymize personal data and respect consent, so teams can measure real engagement without compromising user trust. The result is a focused dashboard that highlights trends, surface anomalies, and makes it simple to track outcomes against goals.</p>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">A powerful, privacy-first analytics dashboard</h1>
+              <p className="text-base sm:text-lg text-slate-600 mb-6">SignalVista collects anonymized interaction events and transforms them into clear metrics and visualizations that inform product and marketing decisions. The platform aggregates events into sessions, computes retention and cohort metrics, and generates visual explorations like funnels and time-series charts. Natural-language search surfaces the most relevant visual answers for everyday questions, while export and integration options enable sharing with BI tools. Strong privacy defaults anonymize personal data and respect consent, so teams can measure real engagement without compromising user trust. The result is a focused dashboard that highlights trends, surface anomalies, and makes it simple to track outcomes against goals.</p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={() => navigate('/auth')} className="bg-[#b4e717] text-[#1C4B42] px-6 py-3 hover:bg-[#b4e718]">Get started — it's free</Button>
+                <Button onClick={() => navigate('/auth')} className="bg-[#b4e717] text-[#1C4B42] px-5 py-2 sm:px-6 sm:py-3 hover:bg-[#b4e718]">Get started — it's free</Button>
                   <Button variant="outline" onClick={() => {
                     const el = document.getElementById('dashboard-details');
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -55,7 +55,7 @@ export default function LearnMore() {
                         document.getElementById('dashboard-details')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }, 300);
                     }
-                  }} className="px-6 py-3">See dashboard details</Button>
+                  }} className="px-5 py-2 sm:px-6 sm:py-3">See dashboard details</Button>
               </div>
             </div>
 
@@ -74,13 +74,13 @@ export default function LearnMore() {
           {/* Dashboard details section */}
           <section id="dashboard-details" className="py-12 px-6 bg-white border-t">
             <div className="w-[90%] mx-auto">
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">How data appears in the dashboard</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">How data appears in the dashboard</h2>
               <p className="text-slate-600 mb-6">Dashboard visualizations combine aggregated event streams and sessionized metrics to present clear panels: time-series charts for trends, cohort tables for retention, conversion funnels for drop-off analysis, and summary KPIs for top-level monitoring. Charts are interactive — hover for tooltips, zoom by date range, and filter by segments. Reports can be exported as CSV or shared as snapshot links for collaborators.</p>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">Settings & data management</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mt-6 mb-2">Settings & data management</h3>
               <p className="text-slate-600 mb-4">From the settings panel you control retention windows, sampling rates, which events are collected, and privacy defaults such as IP anonymization and consent handling. You can enable or disable integrations, configure alert thresholds, and set user roles and access permissions for team members.</p>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">Installing the analytics collector</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mt-6 mb-2">Installing the analytics collector</h3>
               <p className="text-slate-600 mb-3">Add the small collector snippet to each page you want tracked. Place it in the site's <code className="bg-slate-100 px-1 rounded">&lt;head&gt;</code> or before the closing <code className="bg-slate-100 px-1 rounded">&lt;/body&gt;</code> tag. The snippet batches events and sends them efficiently to the backend with minimal impact on page performance.</p>
               <pre className="bg-slate-100 p-4 rounded text-sm overflow-auto mb-4"><code>{`<!-- SignalVista collector -->
   <script>
@@ -104,15 +104,15 @@ export default function LearnMore() {
         <section className="py-16 px-6 bg-gray-50">
           <div className="w-[90%] mx-auto grid md:grid-cols-3 gap-8">
             <div className="p-6 bg-white rounded-2xl border">
-              <h3 className="text-xl font-semibold mb-2">Actionable Insights</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Actionable Insights</h3>
               <p className="text-slate-600">Automated highlights surface anomalies and suggested actions so your team spends less time hunting and more time shipping.</p>
             </div>
             <div className="p-6 bg-white rounded-2xl border">
-              <h3 className="text-xl font-semibold mb-2">Natural Language Queries</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Natural Language Queries</h3>
               <p className="text-slate-600">Ask questions in plain English and get visual answers, charts, and links to the underlying data in seconds.</p>
             </div>
             <div className="p-6 bg-white rounded-2xl border">
-              <h3 className="text-xl font-semibold mb-2">Privacy & Compliance</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Privacy & Compliance</h3>
               <p className="text-slate-600">IP anonymization, consent controls, and a privacy-first defaults make it easy to stay compliant while getting insights.</p>
             </div>
           </div>

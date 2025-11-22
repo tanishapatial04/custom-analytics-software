@@ -41,12 +41,12 @@ export default function LandingPage({ isAuthenticated }) {
           <div className="inline-block mb-6 px-4 py-2 bg-white text-[#1C4B42] rounded-full text-sm font-medium border border-[#1C4B42]">
             Privacy-First Analytics Platform
           </div>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
             Analytics Powered by
             <br />
             <span className="bg-clip-text text-[#1C4B42] font-semibold">Natural Language</span>
           </h1>
-          <p className="text-lg sm:text-l text-slate-600 mb-12 mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 mb-12 mx-auto leading-relaxed">
             SignalVista captures and processes anonymized event data to surface practical insights for product and marketing teams. The platform tracks pageviews, events, and sessions using a lightweight collector, builds time-series aggregates and cohorts, and indexes semantic summaries so queries return clear visualizations. With natural-language querying, teams ask plain-English questions and receive charts, trend analysis, and exportable datasets without manual SQL. Built-in privacy controls anonymize user identifiers and respect consent settings, while real-time processing ensures dashboards reflect recent activity. Export options and integrations let you push metrics to BI tools or download CSVs for analysis. SignalVista is designed for performance and clarity: intuitive visualizations, shareable reports, and actionable alerts help teams prioritize improvements and measure impact quickly.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -54,7 +54,7 @@ export default function LandingPage({ isAuthenticated }) {
               data-testid="hero-get-started-button"
               onClick={() => navigate('/auth')}
               size="lg"
-              className="bg-[#b4e717] text-[#1C4B42] px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-[#b4e718] hover:text-[#1C4B42]"
+              className="bg-[#b4e717] text-[#1C4B42] px-6 py-4 text-base sm:text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-[#b4e718] hover:text-[#1C4B42]"
             >
               Start Tracking Free
             </Button>
@@ -63,7 +63,7 @@ export default function LandingPage({ isAuthenticated }) {
               variant="outline" 
               size="lg"
               onClick={() => navigate('/learn-more')}
-              className="border-2 border-[#b4e717] text-[#1C4B42] hover:bg-[#f8fbe8] px-8 py-6 text-lg rounded-full"
+              className="border-2 border-[#b4e717] text-[#1C4B42] hover:bg-[#f8fbe8] px-6 py-4 text-base sm:text-lg rounded-full"
             >
               Learn More
             </Button>
@@ -75,10 +75,10 @@ export default function LandingPage({ isAuthenticated }) {
       <section className="py-20 px-6 bg-white">
         <div className="w-[90%] mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
               Everything you need to understand your users
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base text-slate-600 max-w-2xl mx-auto">
               Powerful analytics meets conversational AI for insights that matter
             </p>
           </div>
@@ -134,17 +134,17 @@ export default function LandingPage({ isAuthenticated }) {
       {/* CTA Section */}
       <section className="py-20 px-6 bg-[#1C4B42]">
         <div className="w-[90%] mx-auto text-center max-w-4xl">
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
             Ready to unlock AI-powered insights?
           </h2>
-          <p className="text-xl text-[#b4e717] mb-10">
+          <p className="text-lg text-[#b4e717] mb-10">
             Start tracking your website analytics in minutes. No credit card required.
           </p>
           <Button 
             data-testid="cta-start-free-button"
             onClick={() => navigate('/auth')}
             size="lg"
-            className="bg-[#b4e717] text-[#1C4B42] hover:bg-[#b4e718] hover:text-[#1C4B42] px-10 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl font-semibold"
+            className="bg-[#b4e717] text-[#1C4B42] hover:bg-[#b4e718] hover:text-[#1C4B42] px-8 py-4 text-base sm:text-lg rounded-full shadow-xl hover:shadow-2xl font-semibold"
           >
             Start Free Today
           </Button>
